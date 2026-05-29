@@ -1,0 +1,5 @@
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/obj/Debug/net8.0/test.GeneratedMSBuildEditorConfig.editorconfig
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/obj/Debug/net8.0/test.AssemblyInfoInputs.cache
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/obj/Debug/net8.0/test.AssemblyInfo.cs
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/obj/Debug/net8.0/test.csproj.CoreCompileInputs.cache
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/obj/Debug/net8.0/test.sourcelink.json

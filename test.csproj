@@ -1,13 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType> 
-    <TargetFramework>net8.0</TargetFramework> <!-- may need to change version -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
+
   <ItemGroup>
-    <Reference Include="Libs">
-      <HintPath>libs\*.dll</HintPath>
+    <Reference Include="UsbFsm100Server">
+      <HintPath>libs\UsbFsm100Server.dll</HintPath>
     </Reference>
   </ItemGroup>
 

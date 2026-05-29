@@ -1,3 +1,13 @@
 
-using System;
-using UsbFsm100ServerClass;
+
+
+namespace Test
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello World!");
+        }
+    }
+}
