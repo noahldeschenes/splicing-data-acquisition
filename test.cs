@@ -1,9 +1,9 @@
 using System.Diagnostics;
 
 
-namespace Test
+namespace SplicingDataAcquisition
 {
-    class Program
+    class Test
     {
 
         static void Main(string[] args)
@@ -16,6 +16,6 @@ namespace Test
                 Thread.Sleep(3000);
             }
         }
-        
+
     }
 }
