@@ -11,5 +11,6 @@ namespace Test
             var server = new UsbFsm100ServerClass();
             Console.WriteLine(server.ConnectionStatus);
         }
+        
     }
 }
