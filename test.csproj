@@ -9,11 +9,12 @@
 
 
   <ItemGroup>
-    <Reference Include="UsbFsm100Server" />
-    <Reference Include="msvcr100" />
-    <Reference Include="UsbCoreFsm100" />
-    <Reference Include="wdapi1031" />
-    <Reference Include="Fusion Splicer Driver.dll" />
+    <Reference Include="UsbCoreFsm100">
+      <HintPath>UsbCoreFsm100.dll</HintPath>
+    </Reference>
+    <Reference Include="UsbFsm100Server">
+      <HintPath>UsbFsm100Server.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
