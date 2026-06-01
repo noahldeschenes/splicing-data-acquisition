@@ -1,4 +1,4 @@
-
+using System.Diagnostics;
 
 
 namespace Test
@@ -8,7 +8,7 @@ namespace Test
 
         static void Main(string[] args)
         {
-            var server = new UsbFsm100ServerClass();
+            var server = new UsbFsm100ServerClass(Process.GetCurrentProcess().Handle);
             Console.WriteLine(server.ConnectionStatus);
         }
         
