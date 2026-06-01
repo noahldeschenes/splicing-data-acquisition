@@ -12,7 +12,7 @@ namespace Test
             Console.WriteLine(server.ConnectionStatus);
             while (true)
             {
-                Console.WriteLine(server.CommandAndReceiveText("=FUNCSTAT"));
+                Console.WriteLine(server.CommandAndReceiveText("$RESET"));
                 Thread.Sleep(3000);
             }
         }
