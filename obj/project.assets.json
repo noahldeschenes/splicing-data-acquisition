@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\test.csproj",
-      "projectName": "test",
-      "projectPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\test.csproj",
+      "projectUniqueName": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\SplicingDataAcquisition.csproj",
+      "projectName": "SplicingDataAcquisition",
+      "projectPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\SplicingDataAcquisition.csproj",
       "packagesPath": "C:\\Users\\noah.deschenes\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\obj\\",
+      "outputPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\noah.deschenes\\AppData\\Roaming\\NuGet\\NuGet.Config"
