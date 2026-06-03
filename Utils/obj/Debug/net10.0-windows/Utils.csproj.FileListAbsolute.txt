@@ -1,0 +1,16 @@
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\bin\Debug\net10.0-windows\Utils.deps.json
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\bin\Debug\net10.0-windows\Utils.dll
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\bin\Debug\net10.0-windows\Utils.pdb
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\bin\Debug\net10.0-windows\UsbCoreFsm100.dll
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\bin\Debug\net10.0-windows\UsbFsm100Server.dll
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.csproj.AssemblyReference.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.AssemblyInfoInputs.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.AssemblyInfo.cs
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.csproj.CoreCompileInputs.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.sourcelink.json
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.csproj.Up2Date
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.dll
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\refint\Utils.dll
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\Utils.pdb
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\Utils\obj\Debug\net10.0-windows\ref\Utils.dll

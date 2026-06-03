@@ -29,11 +29,6 @@ namespace Utils
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 0 and 300.");
             }
 
-            if (parameters == null || parameters.Length == 0)
-            {
-                throw new ArgumentException("Parameters cannot be null or empty.", nameof(parameters));
-            }
-
             // TODO: add logging and error handling for communication issues
             string response = SplicerUtils.splicer.CommandAndReceiveText($"#SPLH-{spliceMode}");
             SplicerUtils.splicer.SendBinary(ref parameters, parameters.Length, SplicerUtils.STD_TIMEOUT);
@@ -46,7 +41,7 @@ namespace Utils
 
             using (FileStream fs = File.Create(path))
             {
-                File.AppendAllBytes(path, GetSpliceParameters(spliceMode));
+                fs.Write(GetSpliceParameters(spliceMode), 0, GetSpliceParameters(spliceMode).Length);
             }
         }
         public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true)
@@ -54,9 +49,9 @@ namespace Utils
             //TODO: error handling, descriptions
             
             // choosing a directory name based on the date (and time, if there are conflicts)
-            string date = new DateTime().ToString("yyyy-MM-dd");
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
             string path = parentPath+@"\"+date;
-            if (Directory.Exists(path)) path += ", "+new DateTime().ToString("HH:mm::ss");
+            if (Directory.Exists(path)) path += ", "+DateTime.Now.ToString("HH");
 
 
             // creating the backup directory and adding bin files
