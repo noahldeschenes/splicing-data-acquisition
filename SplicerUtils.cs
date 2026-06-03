@@ -4,6 +4,7 @@ namespace SplicingDataAcquisition;
 
 class SplicerUtils{
 
+    public static int STD_TIMEOUT = 10000; // Standard timeout for splicer communication in milliseconds
 
     public static UsbFsm100ServerClass splicer = new();
     public static void QuitIfDisconnected()
@@ -52,6 +53,15 @@ class SplicerUtils{
             Console.Write(result[i]);
         }
         Console.Write('\n');
+    }
+
+    public static void FailIfNAK(string result)
+    {
+        if (result.StartsWith("\x15")) // 0x15 is NAK
+        {
+            Console.WriteLine("Received NAK from splicer. Now exiting...");
+            Environment.Exit(0);
+        }
     }
 
 }
