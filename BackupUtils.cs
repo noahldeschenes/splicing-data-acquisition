@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System;
 using System.IO.Compression;
+using Microsoft.VisualBasic;
 
 
 namespace SplicingDataAcquisition
@@ -9,6 +10,7 @@ namespace SplicingDataAcquisition
     
     class BackupUtils
     {
+        public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Data Backups";
         public static byte[] GetSpliceParameters(int spliceMode)
         {
             if (spliceMode < 0 || spliceMode > SplicerUtils.MAX_MODENO)
@@ -47,7 +49,7 @@ namespace SplicingDataAcquisition
                 File.AppendAllBytes(path, GetSpliceParameters(spliceMode));
             }
         }
-        public static void Backup(bool compression, string parentPath=@"C:\Users\noah.deschenes\Documents\Splicer Data Backups")
+        public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true)
         {
             //TODO: error handling, descriptions
             
