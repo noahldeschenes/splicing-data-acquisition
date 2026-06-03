@@ -37,7 +37,7 @@ namespace SplicingDataAcquisition
             SplicerUtils.splicer.SendBinary(ref parameters, parameters.Length, SplicerUtils.STD_TIMEOUT);
         }
 
-        public static void BackupSpecific(string parentPath, int spliceMode)
+        private static void BackupSpecific(string parentPath, int spliceMode)
         {
             string id = $"{spliceMode}".PadLeft(3, '0');
             string path = parentPath+@"\"+id;
@@ -47,16 +47,24 @@ namespace SplicingDataAcquisition
                 File.AppendAllBytes(path, GetSpliceParameters(spliceMode));
             }
         }
-        public static void BackupAll(string path, bool compression)
+        public static void Backup(bool compression, string parentPath=@"C:\Users\noah.deschenes\Documents\Splicer Data Backups")
         {
-            //creating the backup directory
+            //TODO: error handling, descriptions
+            
+            // choosing a directory name based on the date (and time, if there are conflicts)
+            string date = new DateTime().ToString("yyyy-MM-dd");
+            string path = parentPath+@"\"+date;
+            if (Directory.Exists(path)) path += ", "+new DateTime().ToString("HH:mm::ss");
+
+
+            // creating the backup directory and adding bin files
             DirectoryInfo di = Directory.CreateDirectory(path);
             for (int i=0; i<SplicerUtils.MAX_MODENO+1; i++)
             {
                 BackupSpecific(path, i);
             }
 
-            //turning the backup into a zip archive if needed
+            // turning the backup into a zip archive if needed
             if (compression)
             {
                 ZipFile.CreateFromDirectory(path, path+".zip");
