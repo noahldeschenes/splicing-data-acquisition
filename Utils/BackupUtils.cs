@@ -49,9 +49,10 @@ namespace Utils
             //TODO: error handling, descriptions
             
             // choosing a directory name based on the date (and time, if there are conflicts)
-            string date = DateTime.Now.ToString("yyyy-MM-dd");
-            string path = parentPath+@"\"+date;
-            if (Directory.Exists(path)) path += ", "+DateTime.Now.ToString("HH");
+            DateTime currentTime = DateTime.UtcNow;
+            System.Console.WriteLine(currentTime.ToString("yyyy-MM-dd"));
+            string path = parentPath+@"\"+currentTime.ToString("yyyy-MM-dd");
+            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH");
 
 
             // creating the backup directory and adding bin files

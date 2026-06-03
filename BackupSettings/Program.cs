@@ -1,7 +1,10 @@
 ﻿
 
 using Utils;
+using System.Diagnostics;
 
-SplicerUtils.InitializeAndLock();
+
+System.Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
+SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+
 BackupUtils.Backup();
-SplicerUtils.splicer.Command("$UNLOCK");
