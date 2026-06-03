@@ -12,7 +12,7 @@ namespace SplicingDataAcquisition
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 0 and 300.");
             }
 
-            // TODO: add logging for errors
+            // TODO: add logging and error handling for communication issues
             return SplicerUtils.splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
         }
 
@@ -28,7 +28,7 @@ namespace SplicingDataAcquisition
                 throw new ArgumentException("Parameters cannot be null or empty.", nameof(parameters));
             }
 
-            // TODO: add logging for errors
+            // TODO: add logging and error handling for communication issues
             string response = SplicerUtils.splicer.CommandAndReceiveText($"#SPLH-{spliceMode}");
             SplicerUtils.splicer.SendBinary(ref parameters, parameters.Length, SplicerUtils.STD_TIMEOUT);
         }
