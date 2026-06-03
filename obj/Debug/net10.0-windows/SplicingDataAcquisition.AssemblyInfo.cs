@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SplicingDataAcquisition")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42c295e9dd8f9b30e9060f09bc42846fbea36a42")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+494916e1ba236c5561fcfefc81625feaa79eded2")]
 [assembly: System.Reflection.AssemblyProductAttribute("SplicingDataAcquisition")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SplicingDataAcquisition")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,3 +1,7 @@
+using System.IO;
+using System.Text;
+using System;
+using System.IO.Compression;
 
 
 namespace SplicingDataAcquisition
@@ -7,7 +11,7 @@ namespace SplicingDataAcquisition
     {
         public static byte[] GetSpliceParameters(int spliceMode)
         {
-            if (spliceMode < 0 || spliceMode > 300)
+            if (spliceMode < 0 || spliceMode > SplicerUtils.MAX_MODENO)
             {
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 0 and 300.");
             }
@@ -18,7 +22,7 @@ namespace SplicingDataAcquisition
 
         public static void SendSpliceParameters(int spliceMode, byte[] parameters)
         {
-            if (spliceMode < 0 || spliceMode > 300)
+            if (spliceMode < 0 || spliceMode > SplicerUtils.MAX_MODENO)
             {
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 0 and 300.");
             }
@@ -31,6 +35,36 @@ namespace SplicingDataAcquisition
             // TODO: add logging and error handling for communication issues
             string response = SplicerUtils.splicer.CommandAndReceiveText($"#SPLH-{spliceMode}");
             SplicerUtils.splicer.SendBinary(ref parameters, parameters.Length, SplicerUtils.STD_TIMEOUT);
+        }
+
+        public static void BackupSpecific(string parentPath, int spliceMode)
+        {
+            string id = $"{spliceMode}".PadLeft(3, '0');
+            string path = parentPath+@"\"+id;
+
+            using (FileStream fs = File.Create(path))
+            {
+                File.AppendAllBytes(path, GetSpliceParameters(spliceMode));
+            }
+        }
+        public static void BackupAll(string path, bool compression)
+        {
+            //creating the backup directory
+            DirectoryInfo di = Directory.CreateDirectory(path);
+            for (int i=0; i<SplicerUtils.MAX_MODENO+1; i++)
+            {
+                BackupSpecific(path, i);
+            }
+
+            //turning the backup into a zip archive if needed
+            if (compression)
+            {
+                ZipFile.CreateFromDirectory(path, path+".zip");
+
+                foreach (FileInfo f in di.GetFiles()) f.Delete();
+                di.Delete();
+            }
+
         }
 
     }

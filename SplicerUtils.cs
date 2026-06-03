@@ -5,7 +5,7 @@ namespace SplicingDataAcquisition;
 class SplicerUtils{
 
     public static int STD_TIMEOUT = 10000; // Standard timeout for splicer communication in milliseconds
-
+    public static int MAX_MODENO = 300;
     public static UsbFsm100ServerClass splicer = new();
     public static void QuitIfDisconnected()
     {
