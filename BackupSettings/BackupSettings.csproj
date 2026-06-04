@@ -15,6 +15,9 @@
     <Reference Include="UsbFsm100Server">
       <HintPath>UsbFsm100Server.dll</HintPath>
     </Reference>
+    <Reference Include="Utils">
+      <HintPath>..\Utils\bin\Debug\net10.0\Utils.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

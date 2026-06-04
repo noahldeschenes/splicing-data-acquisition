@@ -1,11 +1,12 @@
 ﻿
 using System.Diagnostics;
 using System.IO.Compression;
+using Utils;
 
 namespace BackupSettings
 {
 
-    public class Program
+    public static class Program
     {
         /*
         This class contains utility functions for communicating with the splicer 
@@ -23,20 +24,29 @@ namespace BackupSettings
         private static byte[] GetSpliceParameters(int spliceMode)
         {
 
+            // <summary> Gets binary image of a given splice mode's parameters. </summary>
+
+            // input validation
             if (spliceMode < 1 || spliceMode > MAX_MODENO)
             {
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 1 and 300.");
             }
 
-            
-            return splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
+            // getting parameters and handling NAKs
+            byte[] parameters = splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
+            SplicerUtils.QuitIfNAK(Encoding.ASCII.GetString(parameters));
+            return parameters;
         }
 
         private static void BackupSpecific(string parentPath, int spliceMode)
         {
-            string id = $"{spliceMode}".PadLeft(3, '0');
+            
+            // <summary> Backs up a splice mode's parameters to a given directory. </summary>
+
+            string id = $"{spliceMode}".PadLeft(3, '0'); //formatting spliceMode to have leading zeros (e.g. 001, 002, ..., 300)
             string path = parentPath+@"\"+id;
 
+            // writing to file
             using (FileStream fs = File.Create(path))
             {
                 fs.Write(GetSpliceParameters(spliceMode), 0, GetSpliceParameters(spliceMode).Length);
@@ -52,7 +62,7 @@ namespace BackupSettings
             if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH");
 
 
-            // creating the backup directory and adding bin files
+            // creating the backup directory and adding binary backups
             DirectoryInfo di = Directory.CreateDirectory(path);
             for (int i=1; i<MAX_MODENO+1; i++)
             {
@@ -71,8 +81,19 @@ namespace BackupSettings
 
         public static void Main(string[] args)
         {
-            splicer.InitDriver(Process.GetCurrentProcess().Handle);
-            Backup();
+            SplicerUtils.InitializeAndLock();
+            SplicerUtils.QuitIfDisconnected();
+            
+            try { Backup(); }
+            catch (Exception e)
+            {
+                using (StreamWriter sw = File.AppendText(SplicerUtils.LOG_FILE_LOCATION))
+                {
+                    sw.WriteLine($"Error during backup at {DateTime.UtcNow}: {e.Message}");
+                }
+            }
+
+            splicer.Command("$UNLOCK");
         }
 
     }
