@@ -11,11 +11,8 @@ namespace BackupSettings
         /*
         This class contains utility functions for communicating with the splicer 
         and backing up splice mode settings. 
-
-        TODO: NAK handling, error handling, descriptions, README
         */
 
-        public const int STD_TIMEOUT = 10000; // ten seconds
         public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
         public static UsbFsm100ServerClass splicer = new();
         public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
@@ -34,7 +31,7 @@ namespace BackupSettings
 
             // getting parameters and handling NAKs
             byte[] parameters = splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
-            SplicerUtils.QuitIfNAK(Encoding.ASCII.GetString(parameters));
+            ErrorHandling.QuitIfNAK(Encoding.ASCII.GetString(parameters));
             return parameters;
         }
 
