@@ -1,69 +1,79 @@
-using System.Diagnostics;
+
+using System.IO.Compression;
 
 namespace Utils
 {
 
     public class SplicerUtils{
+        /*
+        This class contains utility functions for communicating with the splicer 
+        and backing up splice mode settings. 
 
-        public static int STD_TIMEOUT = 10000; // Standard timeout for splicer communication in milliseconds
-        public static int MAX_MODENO = 300;
+        TODO: NAK handling, error handling, descriptions, README
+        */
+
+        public const int STD_TIMEOUT = 10000; // ten seconds
+        public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
         public static UsbFsm100ServerClass splicer = new();
-        public static void QuitIfDisconnected()
+        public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
+        
+        
+        private static byte[] GetSpliceParameters(int spliceMode)
         {
-            // UNTESTED
 
-            if (!splicer.ConnectionStatus)
+            if (spliceMode < 1 || spliceMode > MAX_MODENO)
             {
-                Console.WriteLine("Splicer disconnected. Now exiting...");
-                Environment.Exit(0);
+                throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 1 and 300.");
             }
+
+            
+            return splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
         }
 
-        public static bool InitializeAndLock(int timeout=10000)
+        private static void BackupSpecific(string parentPath, int spliceMode)
         {
-            /// <summary> Initializes splicer driver, locks controls </summary>  
+            string id = $"{spliceMode}".PadLeft(3, '0');
+            string path = parentPath+@"\"+id;
 
-            // UNTESTED
-
-            // initializing driver and locking controls
-            splicer.InitDriver(Process.GetCurrentProcess().Handle);
-            splicer.Command("$LOCK");
-
-            // waiting for an idle state 
-            DateTime start_time = DateTime.Now;
-            while ((DateTime.Now - start_time).TotalMilliseconds < timeout)
+            using (FileStream fs = File.Create(path))
             {
-                string current_status = splicer.CommandAndReceiveText("=FUNCSTAT");
-                string[] idle_states = {"READY", "PAUSE1", "PAUSE2", "FINISH"};
-                if (idle_states.Contains(current_status)) return true; 
-                Thread.Sleep(100);
+                fs.Write(GetSpliceParameters(spliceMode), 0, GetSpliceParameters(spliceMode).Length);
+            }
+        }
+        public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true)
+        {
+            
+            // choosing a directory name based on the date (and time, if there are conflicts)
+            DateTime currentTime = DateTime.UtcNow;
+            System.Console.WriteLine(currentTime.ToString("yyyy-MM-dd"));
+            string path = parentPath+@"\"+currentTime.ToString("yyyy-MM-dd");
+            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH");
+
+
+            // creating the backup directory and adding bin files
+            DirectoryInfo di = Directory.CreateDirectory(path);
+            for (int i=1; i<MAX_MODENO+1; i++)
+            {
+                BackupSpecific(path, i);
             }
 
-            //unlocks if we never get an idle state
-            splicer.Command("$UNLOCK");
-            return false;
+            // turning the backup into a zip archive if needed
+            if (compression)
+            {
+                ZipFile.CreateFromDirectory(path, path+".zip");
+
+                foreach (FileInfo f in di.GetFiles()) f.Delete();
+                di.Delete();
+            }
 
         }
 
-        public static void SplicerOutputToHumanReadable(string result)
-        {
-            for (int i=0; i<result.Length; i++)
-            {
-                if (result[i] == 0x06) Console.Write("ACK");
-                else if (result[i] == 0x15) Console.Write("NAK");
-                Console.Write(result[i]);
-            }
-            Console.Write('\n');
-        }
 
-        public static void FailIfNAK(string result)
+        public static void Restore(string backupPath)
         {
-            if (result.StartsWith("\x15")) // 0x15 is NAK
-            {
-                Console.WriteLine("Received NAK from splicer. Now exiting...");
-                Environment.Exit(0);
-            }
+            
         }
 
     }
+
 }
