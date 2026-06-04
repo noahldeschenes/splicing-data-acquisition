@@ -1,29 +1,14 @@
-using System.Diagnostics;
+
 
 namespace Utils
 {
+    public static class ErrorHandling
+    {
+        public const string LOG_FILE_LOCATION = @"C:\Users\noah.deschenes\Documents\error_log.txt"; // temporary 
 
-    public class SplicerUtils{
-
-        public static int STD_TIMEOUT = 10000; // Standard timeout for splicer communication in milliseconds
-        public static int MAX_MODENO = 300;
-        public static UsbFsm100ServerClass splicer = new();
-        public static void QuitIfDisconnected()
-        {
-            // UNTESTED
-
-            if (!splicer.ConnectionStatus)
-            {
-                Console.WriteLine("Splicer disconnected. Now exiting...");
-                Environment.Exit(0);
-            }
-        }
-
-        public static bool InitializeAndLock(int timeout=10000)
+        public static void InitializeAndLock(int timeout=100000)
         {
             /// <summary> Initializes splicer driver, locks controls </summary>  
-
-            // UNTESTED
 
             // initializing driver and locking controls
             splicer.InitDriver(Process.GetCurrentProcess().Handle);
@@ -35,32 +20,43 @@ namespace Utils
             {
                 string current_status = splicer.CommandAndReceiveText("=FUNCSTAT");
                 string[] idle_states = {"READY", "PAUSE1", "PAUSE2", "FINISH"};
-                if (idle_states.Contains(current_status)) return true; 
+                if (idle_states.Contains(current_status)) return;
                 Thread.Sleep(100);
             }
 
             //unlocks if we never get an idle state
             splicer.Command("$UNLOCK");
-            return false;
-
-        }
-
-        public static void SplicerOutputToHumanReadable(string result)
-        {
-            for (int i=0; i<result.Length; i++)
+            
+            using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
             {
-                if (result[i] == 0x06) Console.Write("ACK");
-                else if (result[i] == 0x15) Console.Write("NAK");
-                Console.Write(result[i]);
+                sw.WriteLine($"Unable to initialize splicer at {DateTime.UtcNow}.");
             }
-            Console.Write('\n');
+
+            Environment.Exit(0);
+
         }
 
-        public static void FailIfNAK(string result)
+        public static void QuitIfDisconnected()
+        {
+            // UNTESTED
+
+            if (!splicer.ConnectionStatus)
+            {
+                using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
+                {
+                    sw.WriteLine($"Splicer disconnected at {DateTime.UtcNow}.");
+                }
+                Environment.Exit(0);
+            }
+        }
+        public static void QuitIfNAK(string result)
         {
             if (result.StartsWith("\x15")) // 0x15 is NAK
             {
-                Console.WriteLine("Received NAK from splicer. Now exiting...");
+                using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
+                {
+                    sw.WriteLine($"Received NAK from splicer at {DateTime.UtcNow}.");
+                }
                 Environment.Exit(0);
             }
         }
