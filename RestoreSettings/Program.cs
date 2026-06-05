@@ -6,7 +6,7 @@ namespace RestoreSettings
     public static class Program
     {
         public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
-        
+
         private static void SetSpliceParameters(int spliceMode, byte[] parameters)
         {
 
@@ -46,7 +46,6 @@ namespace RestoreSettings
         public static void Main(string[] args)
         {
             SplicerUtils.InitializeAndLock();
-            SplicerUtils.QuitIfDisconnected();
             
             try { Restore(args[0]); }
             catch (Exception e)

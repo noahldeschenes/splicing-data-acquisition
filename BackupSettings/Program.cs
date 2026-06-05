@@ -12,9 +12,8 @@ namespace BackupSettings
         This class contains utility functions for communicating with the splicer 
         and backing up splice mode settings. 
         */
-
-        public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
-        public static UsbFsm100ServerClass splicer = new();
+        
+        
         public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
         
         
@@ -23,15 +22,8 @@ namespace BackupSettings
 
             // <summary> Gets binary image of a given splice mode's parameters. </summary>
 
-            // input validation
-            if (spliceMode < 1 || spliceMode > MAX_MODENO)
-            {
-                throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 1 and 300.");
-            }
-
-            // getting parameters and handling NAKs
-            byte[] parameters = splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}");
-            ErrorHandling.QuitIfNAK(Encoding.ASCII.GetString(parameters));
+            byte[] parameters = SplicerUtils.splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}"); // assuming spliceMode is in range 1-300
+            SplicerUtils.QuitIfNAK(Encoding.ASCII.GetString(parameters));
             return parameters;
         }
 
@@ -46,7 +38,8 @@ namespace BackupSettings
             // writing to file
             using (FileStream fs = File.Create(path))
             {
-                fs.Write(GetSpliceParameters(spliceMode), 0, GetSpliceParameters(spliceMode).Length);
+                byte [] parameters = GetSpliceParameters(spliceMode);
+                fs.Write(parameters, 0, parameters.Length);
             }
         }
         public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true)
@@ -54,12 +47,11 @@ namespace BackupSettings
             
             // choosing a directory name based on the date (and time, if there are conflicts)
             DateTime currentTime = DateTime.UtcNow;
-            System.Console.WriteLine(currentTime.ToString("yyyy-MM-dd"));
             string path = parentPath+@"\"+currentTime.ToString("yyyy-MM-dd");
-            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH");
+            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH"); // adding hour to the name if there are multiple backups on the same day
 
 
-            // creating the backup directory and adding binary backups
+            // creating the backup directory and adding splice mode files
             DirectoryInfo di = Directory.CreateDirectory(path);
             for (int i=1; i<MAX_MODENO+1; i++)
             {
@@ -79,7 +71,6 @@ namespace BackupSettings
         public static void Main(string[] args)
         {
             SplicerUtils.InitializeAndLock();
-            SplicerUtils.QuitIfDisconnected();
             
             try { Backup(); }
             catch (Exception e)
@@ -90,7 +81,7 @@ namespace BackupSettings
                 }
             }
 
-            splicer.Command("$UNLOCK");
+            SplicerUtils.splicer.Command("$UNLOCK");
         }
 
     }
