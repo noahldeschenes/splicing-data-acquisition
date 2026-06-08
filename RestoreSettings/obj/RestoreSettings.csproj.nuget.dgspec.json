@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj": {}
+    "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj": {}
   },
   "projects": {
-    "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj": {
+    "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj",
+        "projectUniqueName": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj",
         "projectName": "RestoreSettings",
-        "projectPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj",
+        "projectPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj",
         "packagesPath": "C:\\Users\\noah.deschenes\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\obj\\",
+        "outputPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\noah.deschenes\\AppData\\Roaming\\NuGet\\NuGet.Config"

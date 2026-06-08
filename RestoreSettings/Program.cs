@@ -1,5 +1,5 @@
 ﻿
-
+using Utils;
 
 namespace RestoreSettings
 {
@@ -15,9 +15,9 @@ namespace RestoreSettings
                 throw new ArgumentOutOfRangeException(nameof(spliceMode), "Splice mode must be between 1 and 300.");
             }
 
-            string response = splicer.CommandAndReceiveText($"#SPLH-{spliceMode}");
-            ErrorHandling.QuitIfNAK(response);
-            splicer.SendBinary(parameters);
+            string response = SplicerUtils.splicer.CommandAndReceiveText($"#SPLH-{spliceMode}");
+            SplicerUtils.QuitIfNAK(response);
+            SplicerUtils.splicer.SendBinary(parameters);
 
         }
 
@@ -56,7 +56,7 @@ namespace RestoreSettings
                 }
             }
 
-            splicer.Command("$UNLOCK");
+            SplicerUtils.splicer.Command("$UNLOCK");
         }
     }
 }

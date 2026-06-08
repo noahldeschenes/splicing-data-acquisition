@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using System.Text;
 using System.IO.Compression;
 using Utils;
 
@@ -53,7 +54,7 @@ namespace BackupSettings
 
             // creating the backup directory and adding splice mode files
             DirectoryInfo di = Directory.CreateDirectory(path);
-            for (int i=1; i<MAX_MODENO+1; i++)
+            for (int i=1; i<SplicerUtils.MAX_MODENO+1; i++)
             {
                 BackupSpecific(path, i);
             }

@@ -1,5 +1,7 @@
 
 
+using System.Diagnostics;
+
 namespace Utils
 {
     public static class SplicerUtils
@@ -45,7 +47,8 @@ namespace Utils
             {
                 using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
                 {
-                    sw.WriteLine($"Splicer disconnected at {DateTime.UtcNow}.");
+                    sw.WriteLine(@$"Splicer disconnected at {DateTime.UtcNow}.
+                    Check connection and/or restart the splicer.");
                 }
                 
                 Environment.Exit(0);
