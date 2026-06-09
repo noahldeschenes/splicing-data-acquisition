@@ -15,12 +15,10 @@ namespace RecordSplicingResults
 
     */
 
-
-
     class Program
     {
 
-        static Dictionary<String, String> GetDictFromSplicerOutput(string splicerOutput)
+        static Dictionary<string, string> GetDictFromSplicerOutput(string splicerOutput)
         {
             // <summary> Takes the output of the splicer and formats it into a dict, for eventual
             // conversion into a JSON. </summary>
