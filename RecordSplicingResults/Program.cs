@@ -1,6 +1,9 @@
 ﻿
 //using Utils;
 
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
 
 namespace RecordSplicingResults
 {
@@ -8,52 +11,43 @@ namespace RecordSplicingResults
         Folder: date
         Files inside: JSON, images, settings, errors
 
+        maybe add original arc time/power and give a difference? ask mark
+
     */
-    public record Result(
-        string FiberType,
-        string Error,
-        string SpliceMode,
-        MainSpliceResults MainResults,
-        SecondarySpliceResults SecondaryResults,
-        OptionalSpliceData OptionalData
-    );
-
-    public record MainSpliceResults(
-        float EstimatedLoss,
-        float LeftCLeaveAngle,
-        float RightCleaveAngle,
-        float CoreOffset,
-        float CladOffset
-    );
-    public record SecondarySpliceResults(
-        float EstimatedOffsetLoss,
-        float EstimatedDeformLoss,
-        float EstimatedMfdMismatchLoss,
-        float MeasuredGap,
-        float CrosstalkPerDegree,
-        float CrosstalkPerDB,
-        float FiberAngle
-    );
-
-    public record OptionalSpliceData( //might not get
-        float MainArcPower,
-        float ArcTime,
-        float AxisMovement
-    );
 
 
 
-    internal class Program
+    class Program
     {
 
-
-
-
-
-        static void Main(string[] args)
+        static Dictionary<String, String> GetDictFromSplicerOutput(string splicerOutput)
         {
-            Console.WriteLine("Hello World!");
+            // <summary> Takes the output of the splicer and formats it into a dict, for eventual
+            // conversion into a JSON. </summary>
+
+            // TODO: add conversions to ints/floats
+
+            Dictionary<string, string> pairs = new();
+
+            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+
+            foreach (Match match in Regex.Matches(splicerOutput, pattern))
+            {
+                string id = match.Groups["identifier"].Value;
+                string result = match.Groups["result"].Value; 
+                pairs[id] = result;
+            }
+
+            return pairs;
         }
+
+
+        static string QuerySplicer(string queryType, string[] identifiers)
+        {
+            return "";
+        }
+
+        
 
     }
 }
