@@ -1,6 +1,4 @@
 ﻿
-//using Utils;
-
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils;
@@ -12,11 +10,18 @@ namespace RecordSplicingResults
         Folder: date
         Files inside: JSON, images, settings, errors
 
+
+        JSON format: Splicer info, Relevant splice settings, Volatile memory splice data, 
+        Non-volatile memory splice data
+
     */
+
+
+
 
     class Program
     {
-
+ 
         static Dictionary<string, object> ParseSplicerOutput(string splicerOutput)
         {
             // <summary> Takes the output of the splicer and formats it into a dict, for eventual
@@ -31,33 +36,43 @@ namespace RecordSplicingResults
                 string id = match.Groups["identifier"].Value;
                 string result = match.Groups["result"].Value; 
 
-                
-                // result can be a string, an int, or a float, so we auto-parse it for the sake of convenience/flexibility
-                
-                if (!int.TryParse(result, out int convertedResult) && !float.TryParse(result, out float convertedResult))
-                {
-                    string convertedResult = result;
-                }
 
-                pairs[id] = convertedResult;
+                if (id.StartsWith("CROSSTALK")) continue; //special case
+
+                
+                // result can be a string, an int, or a float, so we auto-parse 
+                // it for the sake of convenience/flexibility
+                if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
+                else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
+                else pairs[id] = result;
+
             }
 
             return pairs;
         }
 
 
-        static string QuerySplicer(string queryType, string[] identifiers)
+        static string QuerySplicer(string query, string[] identifiers)
         {
-            
-            string input = queryType;
+            // <summary> Formats query and identifiers to be machine-readable for
+            // the splicer; returns the splicer's output </summary>
+
+            string input = query;
             
             foreach (string id in identifiers)
             {
                 input+=$"|{id}";
             }
 
-            SplicerUtils.splicer.CommandAndRecieveText(input);
+            string output = SplicerUtils.splicer.CommandAndReceiveText(input);
+            // TODO: NAK handling?
+
+            return output;
+
         }
+
+
+
 
         
 
