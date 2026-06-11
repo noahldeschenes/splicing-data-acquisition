@@ -68,5 +68,24 @@ namespace Utils
             }
         }
 
+        public static string QuerySplicer(string query, string[] identifiers)
+        {
+            // <summary> Formats query and identifiers to be machine-readable for
+            // the splicer; returns the splicer's output </summary>
+
+            string input = query;
+            
+            foreach (string id in identifiers)
+            {
+                input+=$"|{id}";
+            }
+
+            string output = SplicerUtils.splicer.CommandAndReceiveText(input);
+            // TODO: NAK handling?
+
+            return output;
+
+        }
+
     }
 }

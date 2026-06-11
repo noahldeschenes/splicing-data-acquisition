@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj": {}
+    "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj": {}
   },
   "projects": {
-    "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj": {
+    "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
+        "projectUniqueName": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
         "projectName": "RecordSplicingResults",
-        "projectPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
+        "projectPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
         "packagesPath": "C:\\Users\\noah.deschenes\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\obj\\",
+        "outputPath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\noah.deschenes\\AppData\\Roaming\\NuGet\\NuGet.Config"
