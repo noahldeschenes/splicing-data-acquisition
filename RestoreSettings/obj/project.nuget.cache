@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Z0croOo+gs8=",
+  "dgSpecHash": "dyxtb/VJRww=",
   "success": true,
-  "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RestoreSettings\\RestoreSettings.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RestoreSettings/RestoreSettings.csproj",
+  "expectedPackageFiles": [
+    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
+  ],
   "logs": []
 }

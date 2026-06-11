@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,9 @@
     </Reference>
     <Reference Include="UsbFsm100Server">
       <HintPath>UsbFsm100Server.dll</HintPath>
+    </Reference>
+    <Reference Include="Utils">
+      <HintPath>..\Utils\bin\Debug\net10.0-windows\Utils.dll</HintPath>
     </Reference>
     
   </ItemGroup>

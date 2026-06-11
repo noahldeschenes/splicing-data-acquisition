@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,10 @@
     <Reference Include="Utils">
       <HintPath>..\Utils\bin\Debug\net10.0-windows\Utils.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
   </ItemGroup>
 
 </Project>

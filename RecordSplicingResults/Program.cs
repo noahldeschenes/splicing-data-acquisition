@@ -2,7 +2,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Utils;
-using System.Text.Json.Nodes;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixImage = SixLabors.ImageSharp.Image;
 
 
 namespace RecordSplicingResults
@@ -22,6 +24,7 @@ namespace RecordSplicingResults
 
     class Program
     {
+
         static readonly string[] SPLICER_INFO = ["MODELNAME", "SERNUM", "TARCCOUNT"];
         static readonly string[] NONVOLATILE_MEM = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS", 
         "ESTMFDLOSS", "ESTMINLOSS", "CLVANGLEL", "CLVANGLER", "FIBERANGLE", "GAP", "COREOFSAFTER",
@@ -40,6 +43,11 @@ namespace RecordSplicingResults
         "COREDEFORMATION", "MFDMISMATCHMEASURE", "MINIMUMLOSS", "WAVELENGTH", "COREDEFORMATIONCOEF", 
         "MFDMISMATCHOFFSET", "MFDMISMATCHSENSITIVITY", "ESTMODEFOROLDMETHOD", "CORESTEPCOEF", 
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
+
+        static int VGA_WIDTH = 640;
+        static int VGA_HEIGHT = 480;
+
+
         static Dictionary<string, object> GetSplicerOutputAsDict(string query, string[] identifiers)
         {
             // <summary> Takes the output of the splicer and formats it into a dict, for eventual
@@ -68,24 +76,69 @@ namespace RecordSplicingResults
         }
 
 
-        static void CreateJSON(int location, bool mostRecent)
+        static void CreateJSON(int location, bool mostRecent, string parentDir)
         {
             
-            var splicerInfo = GetSplicerOutputAsDict("=INF", SPLICER_INFO);
-            var nonVolMem = GetSplicerOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            
-            Dictionary<string, object> volMem;
-            if (mostRecent) volMem = GetSplicerOutputAsDict("=DATH", VOLATILE_MEM);
-            else volMem = new();
+            Dictionary<string, object> unserializedJSON = new();
 
-            var leftFiberInfo = GetSplicerOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
-            var rightFiberInfo = GetSplicerOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
-            var mainArc = GetSplicerOutputAsDict($"MEMSPL-{location}", MAINARC);
-            var estimation = GetSplicerOutputAsDict($"MEMSPL-{location}", ESTIMATION);
+            // getting splicer and splice info 
+            unserializedJSON["SPLICER_INFO"] = GetSplicerOutputAsDict("=INF", SPLICER_INFO);
+            unserializedJSON["NONVOLATILE_MEM"] = GetSplicerOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
+            // can only get volatile memory data if this splice was the most recent splice
+            if (mostRecent) unserializedJSON["VOLATILE_MEM"] = GetSplicerOutputAsDict("=DATH", VOLATILE_MEM);
 
+
+            // getting settings info
+            Dictionary<string, object> settings = new();
+            unserializedJSON["SETTINGS"] = settings;
+            settings["LEFTFIBERINFO"] = GetSplicerOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
+            settings["RIGHTFIBERINFO"] = GetSplicerOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
+            settings["MAINARC"] = GetSplicerOutputAsDict($"MEMSPL-{location}", MAINARC);
+            settings["ESTIMATION"] = GetSplicerOutputAsDict($"MEMSPL-{location}", ESTIMATION);
             
-            
+
+            // serializing JSON
+            string filename = parentDir+"/spliceData.JSON";
+            string serializedJSON = JsonSerializer.Serialize(unserializedJSON);
+            File.WriteAllText(filename, serializedJSON);
+
         }
+
+        static void GetImages(string parentDir)
+        {
+            string dirname = parentDir+"/images";
+            Directory.CreateDirectory(dirname);
+
+            string[] imageIDs = ["PREARC", "WSI", "CLD", "LIVE", "EV"];
+
+            foreach (string id in imageIDs)
+            {
+
+                // getting image in X view
+                SplicerUtils.QuerySplicer($"=IMGH-{id}-X", []);
+                byte[] imgX = SplicerUtils.splicer.ReceiveBinary();
+                using (Image<L8> image = SixImage.LoadPixelData<L8>(imgX, VGA_WIDTH, VGA_HEIGHT))
+                {
+                    image.SaveAsPng(dirname+"/"+id+"-X");   
+                }
+
+                // getting image in Y view
+                SplicerUtils.QuerySplicer($"=IMGH-{id}-Y", []);
+                byte[] imgY = SplicerUtils.splicer.ReceiveBinary();
+                using (Image<L8> image = SixImage.LoadPixelData<L8>(imgY, VGA_WIDTH, VGA_HEIGHT))
+                {
+                    image.SaveAsPng(dirname+"/"+id+"-Y");   
+                }
+
+            }
+        }
+
+        static void GetSettings(string parentDir)
+        {
+            // need to test if "=MEMSPLH" works for backing up
+            // actually, maybe don't get settings but just check diffs as you go?
+        }
+
 
 
     }
