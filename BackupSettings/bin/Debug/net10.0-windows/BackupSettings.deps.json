@@ -9,7 +9,8 @@
       "BackupSettings/1.0.0": {
         "dependencies": {
           "UsbCoreFsm100": "1.0.0.0",
-          "UsbFsm100Server": "1.0.0.0"
+          "UsbFsm100Server": "1.0.0.0",
+          "Utils": "1.0.0.0"
         },
         "runtime": {
           "BackupSettings.dll": {}
@@ -30,6 +31,14 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "Utils/1.0.0.0": {
+        "runtime": {
+          "Utils.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -45,6 +54,11 @@
       "sha512": ""
     },
     "UsbFsm100Server/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Utils/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
