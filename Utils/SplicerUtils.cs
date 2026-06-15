@@ -65,7 +65,7 @@ namespace Utils
         }
         public static void AcquireSplicerLock()
         {
-            TryConnect();
+            WaitForConnection();
             
             while (true)
             {
@@ -83,7 +83,7 @@ namespace Utils
             }
 
         }
-        public static void TryConnect()
+        public static void WaitForConnection()
         {
             while (true)
             {

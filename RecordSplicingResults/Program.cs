@@ -57,15 +57,22 @@ namespace RecordSplicingResults
 
         static void WaitForNewSplice()
         {
+            
+
+            // We make the assumption that if the serial number of the splicer or the # of arcs has changed, then
+            // this is a new splice. Might be more reasonable to also check the file itself, but for now
+            // this is good enough (we might get duplicate data by accident is the worst thing).
+
             while (true)
             {
 
-                SplicerUtils.TryConnect();
+                SplicerUtils.WaitForConnection();
 
                 var splicerInfo = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
                 int curSerialNum = (int) splicerInfo["SERNUM"];
                 int curTArcCount = (int) splicerInfo["TARCCOUNT"];
 
+                
                 if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) {
                     Thread.Sleep(SplicerUtils.POLLING_WAIT_TIME);   
                     continue;     
