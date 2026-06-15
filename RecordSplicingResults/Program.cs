@@ -52,7 +52,8 @@ namespace RecordSplicingResults
         static readonly string RECORDS_DIRECTORY_PATH = ""; // TODO: find directory
         static readonly int POLLING_WAIT_TIME = 1000;
 
-        
+        static int prevSerialNum = -1;
+        static int prevTArcCount = -1;
 
 
         static void CreateJSON(string parentDir, int location)
@@ -119,14 +120,13 @@ namespace RecordSplicingResults
         }
 
 
-        static string CreateNewSpliceDirectory(int prevSerialNum, int prevTArcCount)
+        static string CreateNewSpliceDirectory()
         {
 
             // TODO: handle NAKs
 
             while (true)
             {
-                Thread.Sleep(POLLING_WAIT_TIME);
 
                 TryConnect();
 
@@ -134,8 +134,16 @@ namespace RecordSplicingResults
                 int curSerialNum = (int) splicerInfo["SERNUM"];
                 int curTArcCount = (int) splicerInfo["TARCCOUNT"];
 
-                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) continue;
-                // if above is false, new splice has occured, we can now create a new directory for it
+                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) {
+                    Thread.Sleep(POLLING_WAIT_TIME);   
+                    continue;     
+                }
+
+                prevSerialNum = curSerialNum;
+                prevTArcCount = curTArcCount;
+
+
+                // new splice has occured, we can now create a new directory for it
 
                 AcquireSplicerLock();
 
@@ -183,17 +191,12 @@ namespace RecordSplicingResults
         static void CoreLoop()
         {
 
-            int prevSerialNum = -1;
-            int prevTArcCount = -1;
-
             SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
 
             while (true)
             {   
 
-                TryConnect();
-
-                string dirname = CreateNewSpliceDirectory(prevSerialNum, prevTArcCount);
+                string dirname = CreateNewSpliceDirectory();
 
                 int.TryParse(SplicerUtils.QuerySplicer("=MEMLATEST", []), out int location);
 
