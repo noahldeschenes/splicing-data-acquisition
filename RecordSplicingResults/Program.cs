@@ -1,17 +1,21 @@
 ﻿
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixImage = SixLabors.ImageSharp.Image;
 
 
+
+
 namespace RecordSplicingResults
 {
     /*
         Folder: date
-        Files inside: JSON, images, settings, errors
+        Files inside: JSON, images, errors
 
 
         JSON format: Splicer info, Relevant splice settings, Volatile memory splice data, 
@@ -44,57 +48,32 @@ namespace RecordSplicingResults
         "MFDMISMATCHOFFSET", "MFDMISMATCHSENSITIVITY", "ESTMODEFOROLDMETHOD", "CORESTEPCOEF", 
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
 
-        static int VGA_WIDTH = 640;
-        static int VGA_HEIGHT = 480;
+
+        static readonly string RECORDS_DIRECTORY_PATH = ""; // TODO: find directory
+        static readonly int POLLING_WAIT_TIME = 1000;
+
+        
 
 
-        static Dictionary<string, object> GetSplicerOutputAsDict(string query, string[] identifiers)
-        {
-            // <summary> Takes the output of the splicer and formats it into a dict, for eventual
-            // conversion into a JSON. </summary>
-
-            string splicerOutput = SplicerUtils.QuerySplicer(query, identifiers);
-
-            Dictionary<string, object> pairs = new();
-
-            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
-
-            foreach (Match match in Regex.Matches(splicerOutput, pattern))
-            {
-                string id = match.Groups["identifier"].Value;
-                string result = match.Groups["result"].Value; 
-
-                // result can be a string, an int, or a float, so we auto-parse 
-                // it for the sake of convenience/flexibility
-                if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
-                else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
-                else pairs[id] = result;
-
-            }
-
-            return pairs;
-        }
-
-
-        static void CreateJSON(int location, bool mostRecent, string parentDir)
+        static void CreateJSON(string parentDir, int location)
         {
             
+               
             Dictionary<string, object> unserializedJSON = new();
 
             // getting splicer and splice info 
-            unserializedJSON["SPLICER_INFO"] = GetSplicerOutputAsDict("=INF", SPLICER_INFO);
-            unserializedJSON["NONVOLATILE_MEM"] = GetSplicerOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            // can only get volatile memory data if this splice was the most recent splice
-            if (mostRecent) unserializedJSON["VOLATILE_MEM"] = GetSplicerOutputAsDict("=DATH", VOLATILE_MEM);
+            unserializedJSON["SPLICER_INFO"] = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
+            unserializedJSON["NONVOLATILE_MEM"] = SplicerUtils.GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
+            unserializedJSON["VOLATILE_MEM"] = SplicerUtils.GetOutputAsDict("=DATH", VOLATILE_MEM);
 
 
             // getting settings info
             Dictionary<string, object> settings = new();
             unserializedJSON["SETTINGS"] = settings;
-            settings["LEFTFIBERINFO"] = GetSplicerOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
-            settings["RIGHTFIBERINFO"] = GetSplicerOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
-            settings["MAINARC"] = GetSplicerOutputAsDict($"MEMSPL-{location}", MAINARC);
-            settings["ESTIMATION"] = GetSplicerOutputAsDict($"MEMSPL-{location}", ESTIMATION);
+            settings["LEFTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
+            settings["RIGHTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
+            settings["MAINARC"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", MAINARC);
+            settings["ESTIMATION"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
             
 
             // serializing JSON
@@ -106,6 +85,12 @@ namespace RecordSplicingResults
 
         static void GetImages(string parentDir)
         {
+
+            // VGA is a resolution display standard which is 640 x 480 pixels
+            int VGA_WIDTH = 640;
+            int VGA_HEIGHT = 480;
+
+
             string dirname = parentDir+"/images";
             Directory.CreateDirectory(dirname);
 
@@ -133,14 +118,91 @@ namespace RecordSplicingResults
             }
         }
 
-        static void GetSettings(string parentDir)
+
+        static string CreateNewSpliceDirectory(int prevSerialNum, int prevTArcCount)
         {
-            // need to test if "=MEMSPLH" works for backing up
-            // actually, maybe don't get settings but just check diffs as you go?
+
+            // TODO: handle NAKs
+
+            while (true)
+            {
+                Thread.Sleep(POLLING_WAIT_TIME);
+
+                TryConnect();
+
+                var splicerInfo = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
+                int curSerialNum = (int) splicerInfo["SERNUM"];
+                int curTArcCount = (int) splicerInfo["TARCCOUNT"];
+
+                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) continue;
+                // if above is false, new splice has occured, we can now create a new directory for it
+
+                AcquireSplicerLock();
+
+                DateTime currentTime = DateTime.UtcNow;
+                string date = currentTime.ToString("yyyy-MM-dd");
+                string time = currentTime.ToString("HHmm");
+
+                string dirname = RECORDS_DIRECTORY_PATH+"/"+date+"/"+time;
+                Directory.CreateDirectory(dirname);
+
+                return dirname;
+                
+            }   
         }
 
+        static void TryConnect()
+        {
+            while (true)
+            {
+                if (SplicerUtils.splicer.ConnectionStatus) break;
+                SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+                Thread.Sleep(POLLING_WAIT_TIME);
+            }
+        }
+        static void AcquireSplicerLock()
+        {
+            TryConnect();
+            
+            while (true)
+            {
+                string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
+                if (currentStatus != "READY" && currentStatus != "FINISH") continue;
+                
+                SplicerUtils.splicer.Command("LOCK");
+                
+                if (currentStatus != "READY" && currentStatus != "FINISH") {
+                    SplicerUtils.splicer.Command("UNLOCK");
+                    continue;
+                }
 
+                break;
+            }
 
+        }
+        static void CoreLoop()
+        {
+
+            int prevSerialNum = -1;
+            int prevTArcCount = -1;
+
+            SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+
+            while (true)
+            {   
+
+                TryConnect();
+
+                string dirname = CreateNewSpliceDirectory(prevSerialNum, prevTArcCount);
+
+                int.TryParse(SplicerUtils.QuerySplicer("=MEMLATEST", []), out int location);
+
+                GetImages(dirname);
+                CreateJSON(dirname, location);
+                BackupUtils.BackupSpecific(dirname, location);
+                SplicerUtils.splicer.Command("UNLOCK");
+            }
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+
 
 namespace Utils
 {
@@ -87,5 +89,35 @@ namespace Utils
 
         }
 
+
+        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
+        {
+            // <summary> Takes the output of the splicer and formats it into a dict </summary>
+
+            // TODO: change to return null if there's a NAK
+
+
+            
+            string splicerOutput = QuerySplicer(query, identifiers);
+
+            Dictionary<string, object> pairs = new();
+
+            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+
+            foreach (Match match in Regex.Matches(splicerOutput, pattern))
+            {
+                string id = match.Groups["identifier"].Value;
+                string result = match.Groups["result"].Value; 
+
+                // result can be a string, an int, or a float, so we auto-parse 
+                // it for the sake of convenience/flexibility
+                if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
+                else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
+                else pairs[id] = result;
+
+            }
+
+            return pairs;
+        }
     }
 }
