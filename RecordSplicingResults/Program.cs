@@ -50,38 +50,44 @@ namespace RecordSplicingResults
 
 
         static readonly string RECORDS_DIRECTORY_PATH = ""; // TODO: find directory
-        static readonly int POLLING_WAIT_TIME = 1000;
+        
 
         static int prevSerialNum = -1;
         static int prevTArcCount = -1;
 
-
-        static void CreateJSON(string parentDir, int location)
+        static void WaitForNewSplice()
         {
-            
-               
-            Dictionary<string, object> unserializedJSON = new();
+            while (true)
+            {
 
-            // getting splicer and splice info 
-            unserializedJSON["SPLICER_INFO"] = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
-            unserializedJSON["NONVOLATILE_MEM"] = SplicerUtils.GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            unserializedJSON["VOLATILE_MEM"] = SplicerUtils.GetOutputAsDict("=DATH", VOLATILE_MEM);
+                SplicerUtils.TryConnect();
 
+                var splicerInfo = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
+                int curSerialNum = (int) splicerInfo["SERNUM"];
+                int curTArcCount = (int) splicerInfo["TARCCOUNT"];
 
-            // getting settings info
-            Dictionary<string, object> settings = new();
-            unserializedJSON["SETTINGS"] = settings;
-            settings["LEFTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
-            settings["RIGHTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
-            settings["MAINARC"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", MAINARC);
-            settings["ESTIMATION"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
-            
+                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) {
+                    Thread.Sleep(SplicerUtils.POLLING_WAIT_TIME);   
+                    continue;     
+                }
 
-            // serializing JSON
-            string filename = parentDir+"/spliceData.JSON";
-            string serializedJSON = JsonSerializer.Serialize(unserializedJSON);
-            File.WriteAllText(filename, serializedJSON);
+                prevSerialNum = curSerialNum;
+                prevTArcCount = curTArcCount;
+            }
+        }
 
+        static string CreateNewSpliceDirectory()
+        {
+
+            DateTime currentTime = DateTime.UtcNow;
+            string date = currentTime.ToString("yyyy-MM-dd");
+            string time = currentTime.ToString("HHmm");
+
+            string dirname = RECORDS_DIRECTORY_PATH+"/"+date+"/"+time;
+            Directory.CreateDirectory(dirname);
+
+            return dirname;
+                
         }
 
         static void GetImages(string parentDir)
@@ -118,76 +124,34 @@ namespace RecordSplicingResults
 
             }
         }
-
-
-        static string CreateNewSpliceDirectory()
+        static void CreateJSON(string parentDir, int location)
         {
-
-            // TODO: handle NAKs
-
-            while (true)
-            {
-
-                TryConnect();
-
-                var splicerInfo = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
-                int curSerialNum = (int) splicerInfo["SERNUM"];
-                int curTArcCount = (int) splicerInfo["TARCCOUNT"];
-
-                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) {
-                    Thread.Sleep(POLLING_WAIT_TIME);   
-                    continue;     
-                }
-
-                prevSerialNum = curSerialNum;
-                prevTArcCount = curTArcCount;
-
-
-                // new splice has occured, we can now create a new directory for it
-
-                AcquireSplicerLock();
-
-                DateTime currentTime = DateTime.UtcNow;
-                string date = currentTime.ToString("yyyy-MM-dd");
-                string time = currentTime.ToString("HHmm");
-
-                string dirname = RECORDS_DIRECTORY_PATH+"/"+date+"/"+time;
-                Directory.CreateDirectory(dirname);
-
-                return dirname;
-                
-            }   
-        }
-
-        static void TryConnect()
-        {
-            while (true)
-            {
-                if (SplicerUtils.splicer.ConnectionStatus) break;
-                SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
-                Thread.Sleep(POLLING_WAIT_TIME);
-            }
-        }
-        static void AcquireSplicerLock()
-        {
-            TryConnect();
             
-            while (true)
-            {
-                string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
-                if (currentStatus != "READY" && currentStatus != "FINISH") continue;
-                
-                SplicerUtils.splicer.Command("LOCK");
-                
-                if (currentStatus != "READY" && currentStatus != "FINISH") {
-                    SplicerUtils.splicer.Command("UNLOCK");
-                    continue;
-                }
+               
+            Dictionary<string, object> unserializedJSON = new();
 
-                break;
-            }
+            // getting splicer and splice info 
+            unserializedJSON["SPLICER_INFO"] = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
+            unserializedJSON["NONVOLATILE_MEM"] = SplicerUtils.GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
+            unserializedJSON["VOLATILE_MEM"] = SplicerUtils.GetOutputAsDict("=DATH", VOLATILE_MEM);
+
+
+            // getting settings info
+            Dictionary<string, object> settings = new();
+            unserializedJSON["SETTINGS"] = settings;
+            settings["LEFTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
+            settings["RIGHTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
+            settings["MAINARC"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", MAINARC);
+            settings["ESTIMATION"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
+            
+
+            // serializing JSON
+            string filename = parentDir+"/spliceData.JSON";
+            string serializedJSON = JsonSerializer.Serialize(unserializedJSON);
+            File.WriteAllText(filename, serializedJSON);
 
         }
+        
         static void CoreLoop()
         {
 
@@ -196,6 +160,8 @@ namespace RecordSplicingResults
             while (true)
             {   
 
+                WaitForNewSplice();
+                SplicerUtils.splicer.Command("LOCK");
                 string dirname = CreateNewSpliceDirectory();
 
                 int.TryParse(SplicerUtils.QuerySplicer("=MEMLATEST", []), out int location);

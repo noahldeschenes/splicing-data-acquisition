@@ -13,62 +13,7 @@ namespace Utils
         public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
         public const char NAK = '\x15'; // ASCII code for NAK character
 
-        public static void InitializeAndLock(int timeout=100000)
-        {
-            /// <summary> Initializes splicer driver, locks controls </summary>  
-
-            // initializing driver and locking controls
-            splicer.InitDriver(Process.GetCurrentProcess().Handle);
-            QuitIfDisconnected();
-            splicer.Command("$LOCK");
-
-            // waiting for an idle state 
-            DateTime start_time = DateTime.Now;
-            while ((DateTime.Now - start_time).TotalMilliseconds < timeout)
-            {
-                string current_status = splicer.CommandAndReceiveText("=FUNCSTAT");
-                string[] idle_states = {"READY", "PAUSE1", "PAUSE2", "FINISH"};
-                if (idle_states.Contains(current_status)) return;
-                Thread.Sleep(100);
-            }
-
-            using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
-            {
-                sw.WriteLine($"Splicer in use at {DateTime.UtcNow}.");
-            }
-
-            splicer.Command("$UNLOCK");
-            Environment.Exit(0);
-
-        }
-
-        public static void QuitIfDisconnected()
-        {
-
-            if (!splicer.ConnectionStatus)
-            {
-                using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
-                {
-                    sw.WriteLine(@$"Splicer disconnected at {DateTime.UtcNow}.
-                    Check connection and/or restart the splicer.");
-                }
-                
-                Environment.Exit(0);
-            }
-        }
-        public static void QuitIfNAK(string result)
-        {
-            if (result.Length > 0 && result[0] == NAK)
-            {
-                using (StreamWriter sw = File.AppendText(LOG_FILE_LOCATION))
-                {
-                    sw.WriteLine($"Received NAK from splicer at {DateTime.UtcNow}.");
-                }
-
-                splicer.Command("$UNLOCK");
-                Environment.Exit(0);
-            }
-        }
+        public static readonly int POLLING_WAIT_TIME = 1000;
 
         public static string QuerySplicer(string query, string[] identifiers)
         {
@@ -96,7 +41,6 @@ namespace Utils
 
             // TODO: change to return null if there's a NAK
 
-
             
             string splicerOutput = QuerySplicer(query, identifiers);
 
@@ -118,6 +62,35 @@ namespace Utils
             }
 
             return pairs;
+        }
+        public static void AcquireSplicerLock()
+        {
+            TryConnect();
+            
+            while (true)
+            {
+                string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
+                if (currentStatus != "READY" && currentStatus != "FINISH") continue;
+                
+                SplicerUtils.splicer.Command("LOCK");
+                
+                if (currentStatus != "READY" && currentStatus != "FINISH") {
+                    SplicerUtils.splicer.Command("UNLOCK");
+                    continue;
+                }
+
+                break;
+            }
+
+        }
+        public static void TryConnect()
+        {
+            while (true)
+            {
+                if (SplicerUtils.splicer.ConnectionStatus) break;
+                SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+                Thread.Sleep(POLLING_WAIT_TIME);
+            }
         }
     }
 }

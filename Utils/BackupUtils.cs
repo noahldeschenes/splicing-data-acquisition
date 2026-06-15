@@ -24,7 +24,6 @@ namespace Utils
             // <summary> Gets binary image of a given splice mode's parameters. </summary>
 
             byte[] parameters = SplicerUtils.splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}"); // assuming spliceMode is in range 1-300
-            SplicerUtils.QuitIfNAK(Encoding.ASCII.GetString(parameters));
             return parameters;
         }
 
@@ -68,6 +67,8 @@ namespace Utils
             }
 
         }
+
+        
 
     }
 
