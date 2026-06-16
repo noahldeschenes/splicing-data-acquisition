@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +20,4 @@
       <HintPath>..\Utils\bin\Debug\net10.0-windows\Utils.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 </Project>
