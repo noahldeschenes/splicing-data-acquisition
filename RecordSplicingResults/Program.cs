@@ -50,36 +50,35 @@ namespace RecordSplicingResults
 
         static readonly string RECORDS_DIRECTORY_PATH = ""; // TODO: find directory
         
-
-        static int prevSerialNum = -1;
-        static int prevTArcCount = -1;
-
-        static void WaitForNewSplice()
-        {
-            
-
-            // We make the assumption that if the serial number of the splicer or the # of arcs has changed, then
-            // this is a new splice. 
-
-            // TODO: use a dict instead!
-
-            while (true)
+        static bool SplicerConnected()
+        {   
+        
+            SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle); //test if you can/should do this multiple times
+            if (!SplicerUtils.splicer.ConnectionStatus)
             {
+                Console.WriteLine("ERROR: Splicer disconnected. To troubleshoot:");
+                Console.WriteLine("    1. Check that the splicer has a USB cable at the back connected to the computer.");
+                Console.WriteLine("    2. Turn the splicer off and back on again.");
+                return false;
+            }
 
-                SplicerUtils.WaitForConnection();
+            Console.WriteLine("Splicer connected...");
+            return true;
+                     
+        }
 
-                var splicerInfo = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
-                int curSerialNum = (int) splicerInfo["SERNUM"];
-                int curTArcCount = (int) splicerInfo["TARCCOUNT"];
-
-                
-                if (curSerialNum == prevSerialNum && curTArcCount == prevTArcCount) {
-                    Thread.Sleep(SplicerUtils.POLLING_WAIT_TIME);   
-                    continue;     
-                }
-
-                prevSerialNum = curSerialNum;
-                prevTArcCount = curTArcCount;
+        static bool SplicerResting()
+        {
+            string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
+            if (currentStatus != "READY" && currentStatus != "FINISH")
+            {
+                Console.WriteLine("ERROR: Splicer is not at the READY or FINISH state.");
+                return false;
+            }
+            else
+            {
+                Console.WriteLine("Locking keypad...");
+                return true;
             }
         }
 
@@ -128,7 +127,8 @@ namespace RecordSplicingResults
 
             GCHandle handle = GCHandle.Alloc(image, GCHandleType.Pinned);
             
-            using (Bitmap bmp = new Bitmap(VGA_WIDTH, VGA_HEIGHT, VGA_WIDTH, PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject()))
+            using (Bitmap bmp = new Bitmap(VGA_WIDTH, VGA_HEIGHT, VGA_WIDTH, 
+                PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject()))
             {
                 // creating color palette
                 ColorPalette pal = bmp.Palette;
@@ -167,24 +167,46 @@ namespace RecordSplicingResults
             File.WriteAllText(filename, serializedJSON);
 
         }
+
+        static void StartingMessage()
+        {   
+            Console.Title = "RecordSplicingResults";
+            Console.WriteLine("Splice data backup Wizard v0.1.0");
+            Console.WriteLine();
+            Console.WriteLine(@"This software connects to Fujikura FSM-100 series splicers to migrate splice
+            data to the cloud. Note that the keypad will be locked during the backup.");
+        }
         
         static void Main(string[] args)
         {
-            SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+
+            StartingMessage();
 
             while (true)
             {   
+                Console.WriteLine();
+                Console.WriteLine("Hit [ENTER] to continue, [CTRL+C] to quit:");
+                Console.ReadLine();
 
-                WaitForNewSplice();
+                if (!SplicerConnected()) continue;
+                if (!SplicerResting()) continue;
                 SplicerUtils.splicer.Command("LOCK");
                 string dirname = CreateNewSpliceDirectory();
 
                 int.TryParse(SplicerUtils.QuerySplicer("=MEMLATEST", []), out int location);
 
+                Console.WriteLine("Backing up images...");
                 GetImages(dirname);
+
+                Console.WriteLine("Backing up data...");
                 CreateJSON(dirname, location);
+
+                Console.WriteLine("Backing up settings...");
                 BackupUtils.BackupSpecific(dirname, location);
                 SplicerUtils.splicer.Command("UNLOCK");
+                Console.WriteLine("Unlocking keypad...");
+
+
             }
         }
     }

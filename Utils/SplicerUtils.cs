@@ -11,9 +11,9 @@ namespace Utils
         public const string LOG_FILE_LOCATION = @"C:\Users\noah.deschenes\Documents\error_log.txt"; // temporary 
         public static UsbFsm100ServerClass splicer = new();
         public const int MAX_MODENO = 300; // splicer has modes numbered 1-300
-        public const char NAK = '\x15'; // ASCII code for NAK character
+        public const char NAK = '\x15'; // ASCII code for NAK
 
-        public static readonly int POLLING_WAIT_TIME = 1000;
+        public static readonly int POLLING_WAIT_TIME = 250;
 
         public static string QuerySplicer(string query, string[] identifiers)
         {
@@ -65,8 +65,6 @@ namespace Utils
         }
         public static void AcquireSplicerLock()
         {
-            WaitForConnection();
-            
             while (true)
             {
                 string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
