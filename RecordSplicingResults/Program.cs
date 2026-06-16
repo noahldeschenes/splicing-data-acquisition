@@ -3,11 +3,10 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using Utils;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixImage = SixLabors.ImageSharp.Image;
-
 
 
 
@@ -60,8 +59,9 @@ namespace RecordSplicingResults
             
 
             // We make the assumption that if the serial number of the splicer or the # of arcs has changed, then
-            // this is a new splice. Might be more reasonable to also check the file itself, but for now
-            // this is good enough (we might get duplicate data by accident is the worst thing).
+            // this is a new splice. 
+
+            // TODO: use a dict instead!
 
             while (true)
             {
@@ -100,11 +100,6 @@ namespace RecordSplicingResults
         static void GetImages(string parentDir)
         {
 
-            // VGA is a resolution display standard which is 640 x 480 pixels
-            int VGA_WIDTH = 640;
-            int VGA_HEIGHT = 480;
-
-
             string dirname = parentDir+"/images";
             Directory.CreateDirectory(dirname);
 
@@ -116,20 +111,34 @@ namespace RecordSplicingResults
                 // getting image in X view
                 SplicerUtils.QuerySplicer($"=IMGH-{id}-X", []);
                 byte[] imgX = SplicerUtils.splicer.ReceiveBinary();
-                using (Image<L8> image = SixImage.LoadPixelData<L8>(imgX, VGA_WIDTH, VGA_HEIGHT))
-                {
-                    image.SaveAsPng(dirname+"/"+id+"-X");   
-                }
+                SaveBMP(imgX, dirname+"/"+id+"-X.png");
 
                 // getting image in Y view
                 SplicerUtils.QuerySplicer($"=IMGH-{id}-Y", []);
                 byte[] imgY = SplicerUtils.splicer.ReceiveBinary();
-                using (Image<L8> image = SixImage.LoadPixelData<L8>(imgY, VGA_WIDTH, VGA_HEIGHT))
-                {
-                    image.SaveAsPng(dirname+"/"+id+"-Y");   
-                }
+                SaveBMP(imgY, dirname+"/"+id+"-Y.png");
 
             }
+        }
+        public static void SaveBMP(byte[] image, string outputPath)
+        {
+            // VGA is a resolution display standard which is 640 x 480 pixels
+            int VGA_WIDTH = 640;
+            int VGA_HEIGHT = 480;
+
+            GCHandle handle = GCHandle.Alloc(image, GCHandleType.Pinned);
+            
+            using (Bitmap bmp = new Bitmap(VGA_WIDTH, VGA_HEIGHT, VGA_WIDTH, PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject()))
+            {
+                // creating color palette
+                ColorPalette pal = bmp.Palette;
+                for (int i = 0; i < 256; i++) pal.Entries[i] = Color.FromArgb(i, i, i);
+                bmp.Palette = pal;
+
+                bmp.Save(outputPath, ImageFormat.Png);
+            }
+
+            handle.Free();
         }
         static void CreateJSON(string parentDir, int location)
         {
@@ -159,9 +168,8 @@ namespace RecordSplicingResults
 
         }
         
-        static void CoreLoop()
+        static void Main(string[] args)
         {
-
             SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
 
             while (true)
@@ -181,4 +189,7 @@ namespace RecordSplicingResults
         }
     }
 }
+    
+
+    
 

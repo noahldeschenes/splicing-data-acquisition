@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "BasNw+zOr3Q=",
+  "dgSpecHash": "3RNyDNLxqMg=",
   "success": true,
   "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/RecordSplicingResults.csproj",
   "expectedPackageFiles": [
-    "/Users/noah.deschenes/.nuget/packages/sixlabors.imagesharp/4.0.0/sixlabors.imagesharp.4.0.0.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/system.io.hashing/8.0.0/system.io.hashing.8.0.0.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
   ],
   "logs": []

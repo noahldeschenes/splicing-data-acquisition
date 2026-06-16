@@ -45,12 +45,6 @@
         "net10.0-windows": {
           "framework": "net10.0-windows7.0",
           "targetAlias": "net10.0-windows",
-          "dependencies": {
-            "SixLabors.ImageSharp": {
-              "target": "Package",
-              "version": "[4.0.0, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",

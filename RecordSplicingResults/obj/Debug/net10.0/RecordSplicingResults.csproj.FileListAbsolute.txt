@@ -1,0 +1,6 @@
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.csproj.AssemblyReference.cache
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.GeneratedMSBuildEditorConfig.editorconfig
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.AssemblyInfoInputs.cache
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.AssemblyInfo.cs
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.csproj.CoreCompileInputs.cache
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/obj/Debug/net10.0/RecordSplicingResults.sourcelink.json
