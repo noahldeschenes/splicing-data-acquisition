@@ -48,7 +48,7 @@ namespace RecordSplicingResults
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
 
 
-        static readonly string RECORDS_DIRECTORY_PATH = ""; // TODO: find directory
+        static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
         
         static bool SplicerConnected()
         {   
@@ -70,9 +70,9 @@ namespace RecordSplicingResults
         static bool SplicerResting()
         {
             string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
-            if (currentStatus != "READY" && currentStatus != "FINISH")
+            if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN")
             {
-                Console.WriteLine("ERROR: Splicer is not at the READY or FINISH state.");
+                Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (at '{currentStatus}' state)");
                 return false;
             }
             else
@@ -85,11 +85,11 @@ namespace RecordSplicingResults
         static string CreateNewSpliceDirectory()
         {
 
-            DateTime currentTime = DateTime.UtcNow;
+            DateTime currentTime = DateTime.Now;
             string date = currentTime.ToString("yyyy-MM-dd");
             string time = currentTime.ToString("HHmm");
 
-            string dirname = RECORDS_DIRECTORY_PATH+"/"+date+"/"+time;
+            string dirname = RECORDS_DIRECTORY_PATH+@"\"+date+@"\"+time;
             Directory.CreateDirectory(dirname);
 
             return dirname;
@@ -99,23 +99,22 @@ namespace RecordSplicingResults
         static void GetImages(string parentDir)
         {
 
-            string dirname = parentDir+"/images";
+            string dirname = parentDir+@"\images";
+
             Directory.CreateDirectory(dirname);
 
-            string[] imageIDs = ["PREARC", "WSI", "CLD", "LIVE", "EV"];
+            string[] imageIDs = ["PREARC", "WSI", "CLD", "LIVE"];
 
             foreach (string id in imageIDs)
             {
 
                 // getting image in X view
-                SplicerUtils.QuerySplicer($"=IMGH-{id}-X", []);
-                byte[] imgX = SplicerUtils.splicer.ReceiveBinary();
-                SaveBMP(imgX, dirname+"/"+id+"-X.png");
+                byte[] imgX = SplicerUtils.splicer.CommandAndReceiveBinary($"=IMGH-{id}-X");
+                SaveBMP(imgX, dirname+@$"\{id}-X.png");
 
                 // getting image in Y view
-                SplicerUtils.QuerySplicer($"=IMGH-{id}-Y", []);
-                byte[] imgY = SplicerUtils.splicer.ReceiveBinary();
-                SaveBMP(imgY, dirname+"/"+id+"-Y.png");
+                byte[] imgY = SplicerUtils.splicer.CommandAndReceiveBinary($"=IMGH-{id}-Y");
+                SaveBMP(imgY, dirname+@$"\{id}-Y.png");
 
             }
         }
@@ -162,7 +161,7 @@ namespace RecordSplicingResults
             
 
             // serializing JSON
-            string filename = parentDir+"/spliceData.JSON";
+            string filename = parentDir+@"\spliceData.JSON";
             string serializedJSON = JsonSerializer.Serialize(unserializedJSON);
             File.WriteAllText(filename, serializedJSON);
 
@@ -173,12 +172,14 @@ namespace RecordSplicingResults
             Console.Title = "RecordSplicingResults";
             Console.WriteLine("Splice data backup Wizard v0.1.0");
             Console.WriteLine();
-            Console.WriteLine(@"This software connects to Fujikura FSM-100 series splicers to migrate splice
-            data to the cloud. Note that the keypad will be locked during the backup.");
+            Console.WriteLine("This software connects to Fujikura FSM-100 series splicers to migrate splice "+
+            "data to the cloud. Note that the keypad will be locked during the backup.");
         }
         
         static void Main(string[] args)
         {
+
+            
 
             StartingMessage();
 
@@ -190,10 +191,11 @@ namespace RecordSplicingResults
 
                 if (!SplicerConnected()) continue;
                 if (!SplicerResting()) continue;
-                SplicerUtils.splicer.Command("LOCK");
+
+                //SplicerUtils.splicer.Command("LOCK");
                 string dirname = CreateNewSpliceDirectory();
 
-                int.TryParse(SplicerUtils.QuerySplicer("=MEMLATEST", []), out int location);
+                int location = (int) SplicerUtils.GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
 
                 Console.WriteLine("Backing up images...");
                 GetImages(dirname);
@@ -203,7 +205,7 @@ namespace RecordSplicingResults
 
                 Console.WriteLine("Backing up settings...");
                 BackupUtils.BackupSpecific(dirname, location);
-                SplicerUtils.splicer.Command("UNLOCK");
+                //SplicerUtils.splicer.Command("UNLOCK");
                 Console.WriteLine("Unlocking keypad...");
 
 

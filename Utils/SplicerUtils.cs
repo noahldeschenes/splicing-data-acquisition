@@ -28,12 +28,19 @@ namespace Utils
             }
 
             string output = SplicerUtils.splicer.CommandAndReceiveText(input);
-            // TODO: NAK handling?
-
+            
+            QuitIfNAK(output);
             return output;
 
         }
 
+        public static void QuitIfNAK(string result)
+        {
+            if (result.Length > 0 && result[0] == NAK)
+            {
+                throw new Exception("NAK");
+            }
+        }
 
         public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
         {

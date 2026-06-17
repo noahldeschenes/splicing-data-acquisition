@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wTLJ4Xh9Ox4=",
+  "dgSpecHash": "CUoClmsYwws=",
   "success": true,
-  "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/Testing/Testing.csproj",
-  "expectedPackageFiles": [
-    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\Testing\\Testing.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
