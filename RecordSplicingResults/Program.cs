@@ -105,7 +105,7 @@ namespace RecordSplicingResults
 
             Directory.CreateDirectory(dirname);
 
-            string[] imageIDs = ["PREARC", "WSI", "CLD", "LIVE"];
+            string[] imageIDs = ["PREARC", "WSI", "CLD"];
 
             foreach (string id in imageIDs)
             {
@@ -123,8 +123,10 @@ namespace RecordSplicingResults
         public static void SaveBMP(byte[] image, string outputPath)
         {
             // VGA is a resolution display standard which is 640 x 480 pixels
-            int VGA_WIDTH = 640;
-            int VGA_HEIGHT = 480;
+            int VGA_HEIGHT = 640;
+            int VGA_WIDTH = 480;
+
+            image = image[(image.Length-VGA_HEIGHT*VGA_WIDTH)..];
 
             GCHandle handle = GCHandle.Alloc(image, GCHandleType.Pinned);
             
@@ -141,19 +143,14 @@ namespace RecordSplicingResults
 
             handle.Free();
         }
-        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
+
+        private static void AddToDict(string query, Dictionary<string, object> pairs)
         {
-            // <summary> Takes the output of the splicer and formats it into a dict </summary>
-
-            // TODO: change to return null if there's a NAK
-
-
-            Dictionary<string, object> pairs = new();
-
-        
+            
             string splicerOutput = splicer.CommandAndReceiveText(query);
-        
+            Console.WriteLine(splicerOutput);
             string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+
 
             foreach (Match match in Regex.Matches(splicerOutput, pattern))
             {
@@ -166,11 +163,34 @@ namespace RecordSplicingResults
                 else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
                 else pairs[id] = result;
 
+            }   
+
+        }
+        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
+        {
+            // <summary> Takes the output of the splicer and formats it into a dict </summary>
+
+            // TODO: change to return null if there's a NAK
+
+
+            Dictionary<string, object> pairs = new();
+        
+            if (identifiers.Length == 0)
+            {
+                AddToDict(query, pairs);
             }
-            
+            else
+            {
+                foreach (string id in identifiers)
+                {
+                    AddToDict(query+"|"+id, pairs);
+                }
+            }
+                
 
             return pairs;
         }
+
         static void CreateJSON(string parentDir, int location)
         {
             
@@ -180,16 +200,16 @@ namespace RecordSplicingResults
             // getting splicer and splice info 
             unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO);
             unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", VOLATILE_MEM);
+            unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", []);
 
 
             // getting settings info
             Dictionary<string, object> settings = new();
             unserializedJSON["SETTINGS"] = settings;
-            settings["LEFTFIBERINFO"] = GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
-            settings["RIGHTFIBERINFO"] = GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
-            settings["MAINARC"] = GetOutputAsDict($"MEMSPL-{location}", MAINARC);
-            settings["ESTIMATION"] = GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
+            settings["LEFTFIBERINFO"] = GetOutputAsDict($"%SPL", LEFTFIBERINFO);
+            settings["RIGHTFIBERINFO"] = GetOutputAsDict($"%SPL", RIGHTFIBERINFO);
+            settings["MAINARC"] = GetOutputAsDict($"%SPL", MAINARC);
+            settings["ESTIMATION"] = GetOutputAsDict($"%SPL", ESTIMATION);
             
 
             // serializing JSON
@@ -230,6 +250,8 @@ namespace RecordSplicingResults
 
                 
                 int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
+
+                Console.WriteLine(splicer.CommandAndReceiveText($"%SPL|FIBERTYPE"));
 
                 Console.WriteLine("Backing up images...");
                 GetImages(dirname);

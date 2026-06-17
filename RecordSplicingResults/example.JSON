@@ -1,0 +1,73 @@
+{
+  "SPLICER_INFO": {
+    "MODELNAME": "FSM-100M",
+    "SERNUM": 7950,
+    "TARCCOUNT": 2009
+  },
+  "NONVOLATILE_MEM": {
+    "DATE": 2.0260617E+13,
+    "COMMENT": "               ",
+    "IMAGE": "",
+    "ERR": "",
+    "FIBERTYPE": "SMAUTO1",
+    "MODETITLE1": "FLEX-SMF-V2",
+    "MODETITLE2": "XANADU         ",
+    "FIBERANGLE": 0,
+    "ESTLOSS": 0,
+    "ESTOFFSETLOSS": 0,
+    "ESTDEFORMLOSS": 0,
+    "ESTMFDLOSS": 0,
+    "ESTMINLOSS": 0,
+    "CLVANGLEL": 0.2,
+    "CLVANGLER": 0,
+    "COREOFSAFTER": 0,
+    "CLADOFSAFTER": 0,
+    "GAP": 16
+  },
+  "VOLATILE_MEM": {},
+  "SETTINGS": {
+    "LEFTFIBERINFO": {
+      "LCLAMPAT": "AUTO",
+      "LCOATINGDIAMETER": 250,
+      "LCLADDIAMETER2": 125,
+      "LCLADDIAMETER": 125, 
+      "LCOREDIAMETER": 3.4,
+      "LMFD": 6.3,
+      "LCLEAVELENGTH": "9mm"
+    },
+    "RIGHTFIBERINFO": {
+      "RCLAMPAT": "AUTO",
+      "RCOATINGDIAMETER": 250,
+      "RCLADDIAMETER2": 125,
+      "RCLADDIAMETER": 125,
+      "RCOREDIAMETER": 8.2,
+      "RMFD": 10.4,
+      "RCLEAVELENGTH": "9mm"
+    },
+    "MAINARC": {
+      "MAINARCPOWERABS": "270 bit",
+      "MAINARCPOWERREL": "31 bit",
+      "MAINARCTIME": 15000,
+      "MAINARCELSWING": "OFF",
+      "MAINARCELSWPOSITION": -200,
+      "MAINARCELSWRANGE": 750,
+      "MAINARCTIMECOMPBYECC": "ON"
+    },
+    "ESTIMATION": {
+      "LOSSESTIMATIONMETHOD": "NEW",
+      "AXISOFFSETMEASURE": "CLAD",
+      "COREDEFORMATION": "OFF",
+      "MFDMISMATCHMEASURE": "OFF",
+      "MINIMUMLOSS": "OFF",
+      "WAVELENGTH": 1310,
+      "COREDEFORMATIONCOEF": 1,
+      "MFDMISMATCHOFFSET": 1,
+      "MFDMISMATCHSENSITIVITY": 1,
+      "ESTMODEFOROLDMETHOD": "CLAD",
+      "CORESTEPCOEF": "OFF",
+      "CORECURVECOEF": "OFF",
+      "OLDMFDMISMATCH": "OFF",
+      "REFPER": 40
+    }
+  }
+}
