@@ -50,11 +50,13 @@ namespace RecordSplicingResults
 
         static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
         
+        public const char NAK = '\x15'; // ASCII code for NAK
+        public static UsbFsm100ServerClass splicer = new();
         static bool SplicerConnected()
         {   
         
-            SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle); //test if you can/should do this multiple times
-            if (!SplicerUtils.splicer.ConnectionStatus)
+            splicer.InitDriver(Process.GetCurrentProcess().Handle); //test if you can/should do this multiple times
+            if (!splicer.ConnectionStatus)
             {
                 Console.WriteLine("ERROR: Splicer disconnected. To troubleshoot:");
                 Console.WriteLine("    1. Check that the splicer has a USB cable at the back connected to the computer.");
@@ -69,7 +71,7 @@ namespace RecordSplicingResults
 
         static bool SplicerResting()
         {
-            string currentStatus = SplicerUtils.QuerySplicer("=FUNCSTAT", []);
+            string currentStatus = splicer.CommandAndReceiveText("=FUNCSTAT");
             if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN")
             {
                 Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (at '{currentStatus}' state)");
@@ -109,11 +111,11 @@ namespace RecordSplicingResults
             {
 
                 // getting image in X view
-                byte[] imgX = SplicerUtils.splicer.CommandAndReceiveBinary($"=IMGH-{id}-X");
+                byte[] imgX = splicer.CommandAndReceiveBinary($"=IMGH-{id}-X");
                 SaveBMP(imgX, dirname+@$"\{id}-X.png");
 
                 // getting image in Y view
-                byte[] imgY = SplicerUtils.splicer.CommandAndReceiveBinary($"=IMGH-{id}-Y");
+                byte[] imgY = splicer.CommandAndReceiveBinary($"=IMGH-{id}-Y");
                 SaveBMP(imgY, dirname+@$"\{id}-Y.png");
 
             }
@@ -139,6 +141,36 @@ namespace RecordSplicingResults
 
             handle.Free();
         }
+        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
+        {
+            // <summary> Takes the output of the splicer and formats it into a dict </summary>
+
+            // TODO: change to return null if there's a NAK
+
+
+            Dictionary<string, object> pairs = new();
+
+        
+            string splicerOutput = splicer.CommandAndReceiveText(query);
+        
+            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+
+            foreach (Match match in Regex.Matches(splicerOutput, pattern))
+            {
+                string id = match.Groups["identifier"].Value;
+                string result = match.Groups["result"].Value; 
+
+                // result can be a string, an int, or a float, so we auto-parse 
+                // it for the sake of convenience/flexibility
+                if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
+                else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
+                else pairs[id] = result;
+
+            }
+            
+
+            return pairs;
+        }
         static void CreateJSON(string parentDir, int location)
         {
             
@@ -146,23 +178,24 @@ namespace RecordSplicingResults
             Dictionary<string, object> unserializedJSON = new();
 
             // getting splicer and splice info 
-            unserializedJSON["SPLICER_INFO"] = SplicerUtils.GetOutputAsDict("=INF", SPLICER_INFO);
-            unserializedJSON["NONVOLATILE_MEM"] = SplicerUtils.GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            unserializedJSON["VOLATILE_MEM"] = SplicerUtils.GetOutputAsDict("=DATH", VOLATILE_MEM);
+            unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO);
+            unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
+            unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", VOLATILE_MEM);
 
 
             // getting settings info
             Dictionary<string, object> settings = new();
             unserializedJSON["SETTINGS"] = settings;
-            settings["LEFTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
-            settings["RIGHTFIBERINFO"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
-            settings["MAINARC"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", MAINARC);
-            settings["ESTIMATION"] = SplicerUtils.GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
+            settings["LEFTFIBERINFO"] = GetOutputAsDict($"MEMSPL-{location}", LEFTFIBERINFO);
+            settings["RIGHTFIBERINFO"] = GetOutputAsDict($"MEMSPL-{location}", RIGHTFIBERINFO);
+            settings["MAINARC"] = GetOutputAsDict($"MEMSPL-{location}", MAINARC);
+            settings["ESTIMATION"] = GetOutputAsDict($"MEMSPL-{location}", ESTIMATION);
             
 
             // serializing JSON
             string filename = parentDir+@"\spliceData.JSON";
-            string serializedJSON = JsonSerializer.Serialize(unserializedJSON);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string serializedJSON = JsonSerializer.Serialize(unserializedJSON, options);
             File.WriteAllText(filename, serializedJSON);
 
         }
@@ -195,7 +228,8 @@ namespace RecordSplicingResults
                 //SplicerUtils.splicer.Command("LOCK");
                 string dirname = CreateNewSpliceDirectory();
 
-                int location = (int) SplicerUtils.GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
+                
+                int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
 
                 Console.WriteLine("Backing up images...");
                 GetImages(dirname);
