@@ -23,8 +23,6 @@ namespace RecordSplicingResults
 
     */
 
-    
-
 
     class Program
     {
@@ -55,8 +53,10 @@ namespace RecordSplicingResults
         public static UsbFsm100ServerClass splicer = new();
         static bool SplicerConnected()
         {   
-        
-            splicer.InitDriver(Process.GetCurrentProcess().Handle); //test if you can/should do this multiple times
+            // <summary> Initializes the driver and checks if the splicer is connected. </summary>
+            
+            splicer.InitDriver(Process.GetCurrentProcess().Handle); 
+
             if (!splicer.ConnectionStatus)
             {
                 Console.WriteLine("ERROR: Splicer disconnected. To troubleshoot:");
@@ -74,10 +74,12 @@ namespace RecordSplicingResults
 
         static bool SplicerResting()
         {
+            // <summary>Checks if the splicer is at a valid state for queries.</summary>
+
             string currentStatus = splicer.CommandAndReceiveText("=FUNCSTAT");
-            if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN")
+            if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN") 
             {
-                Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (at '{currentStatus}' state).");
+                Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (currently at '{currentStatus}' state).");
                 return false;
             }
             else
@@ -88,12 +90,14 @@ namespace RecordSplicingResults
 
         static string CreateNewSpliceDirectory()
         {
-
+            // <summary>Creates a new directory with structure [serial number]\[date]\[time]<\summary>
             DateTime currentTime = DateTime.Now;
             string date = currentTime.ToString("yyyy-MM-dd");
             string time = currentTime.ToString("HHmm");
 
-            string dirname = RECORDS_DIRECTORY_PATH+@"\"+date+@"\"+time;
+            int serialNum = (int) GetOutputAsDict("=INF", ["SERNUM"])["SERNUM"];
+
+            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNum}\{date}\{time}";
             Directory.CreateDirectory(dirname);
 
             return dirname;
@@ -102,7 +106,7 @@ namespace RecordSplicingResults
 
         static void GetImages(string parentDir)
         {
-
+            // <summary>Gets the prearc, warm splice, and cold splice images from the splicer.<\summary>
             string dirname = parentDir+@"\images";
 
             Directory.CreateDirectory(dirname);
@@ -124,7 +128,10 @@ namespace RecordSplicingResults
         }
         public static void SaveBMP(byte[] image, string outputPath)
         {
-            // VGA is a resolution display standard which is 640 x 480 pixels
+            // <summary>Saving the .BMP image that the splicer gives as a png.<\summary>
+
+
+            // VGA is a resolution display standard which is 480x640 pixels
             int VGA_HEIGHT = 640;
             int VGA_WIDTH = 480;
 
@@ -177,15 +184,13 @@ namespace RecordSplicingResults
 
         static void CreateJSON(string parentDir, int location)
         {
-            
+            // <summary>Queries the splicer for various info we want to keep in a JSON file.<\summary>
                
             Dictionary<string, object> unserializedJSON = new();
 
             // getting splicer and splice info 
             unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO);
             unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            //unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", []);
-
 
             // getting settings info
             Dictionary<string, object> settings = new();
@@ -215,6 +220,9 @@ namespace RecordSplicingResults
 
         static bool HandleUserInput()
         {
+            // <summary>Returns true if the user wants to do the standard operation of backing up splice data,
+            // otherwise handling other requests/invalid requests and returning false.<\summary>
+            
             Console.WriteLine();
             Console.WriteLine("Enter [1] to backup splice data, [2] to backup splice mode settings, and [q] to quit:");
             string? response = Console.ReadLine();
@@ -256,6 +264,7 @@ namespace RecordSplicingResults
 
                     if (!HandleUserInput()) continue;
 
+                    // Splice data backup section
                     string dirname = CreateNewSpliceDirectory();
                     int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
 
