@@ -15,7 +15,7 @@ namespace Utils
         */
         
         
-        public const string BACKUP_LOCATION = ""; // TODO: Change this
+        public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
         
         
         private static byte[] GetSpliceParameters(int spliceMode)

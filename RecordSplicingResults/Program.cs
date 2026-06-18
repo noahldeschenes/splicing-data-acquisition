@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Utils;
+using System.Linq.Expressions;
 
 
 
@@ -61,6 +62,8 @@ namespace RecordSplicingResults
                 Console.WriteLine("ERROR: Splicer disconnected. To troubleshoot:");
                 Console.WriteLine("    1. Check that the splicer has a USB cable at the back connected to the computer.");
                 Console.WriteLine("    2. Turn the splicer off and back on again.");
+                Console.WriteLine("Press [ENTER] to continue:");
+                Console.ReadLine();
                 return false;
             }
 
@@ -74,12 +77,11 @@ namespace RecordSplicingResults
             string currentStatus = splicer.CommandAndReceiveText("=FUNCSTAT");
             if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN")
             {
-                Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (at '{currentStatus}' state)");
+                Console.WriteLine($"ERROR: Splicer is not at the READY or FINISH state (at '{currentStatus}' state).");
                 return false;
             }
             else
             {
-                Console.WriteLine("Locking keypad...");
                 return true;
             }
         }
@@ -143,12 +145,15 @@ namespace RecordSplicingResults
 
             handle.Free();
         }
-
-        private static void AddToDict(string query, Dictionary<string, object> pairs)
+        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
         {
-            
+            // <summary> Takes the output of the splicer and formats it into a dict </summary>
+
+
+            Dictionary<string, object> pairs = new();
+
+
             string splicerOutput = splicer.CommandAndReceiveText(query);
-            Console.WriteLine(splicerOutput);
             string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
 
 
@@ -157,36 +162,15 @@ namespace RecordSplicingResults
                 string id = match.Groups["identifier"].Value;
                 string result = match.Groups["result"].Value; 
 
-                // result can be a string, an int, or a float, so we auto-parse 
-                // it for the sake of convenience/flexibility
-                if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
-                else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
-                else pairs[id] = result;
 
-            }   
-
-        }
-        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
-        {
-            // <summary> Takes the output of the splicer and formats it into a dict </summary>
-
-            // TODO: change to return null if there's a NAK
-
-
-            Dictionary<string, object> pairs = new();
-        
-            if (identifiers.Length == 0)
-            {
-                AddToDict(query, pairs);
-            }
-            else
-            {
-                foreach (string id in identifiers)
-                {
-                    AddToDict(query+"|"+id, pairs);
+                if (identifiers.Contains(id)){                
+                    // result can be a string, an int, or a float, so we auto-parse 
+                    // it for the sake of convenience/flexibility
+                    if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
+                    else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
+                    else pairs[id] = result;
                 }
-            }
-                
+            }   
 
             return pairs;
         }
@@ -223,48 +207,72 @@ namespace RecordSplicingResults
         static void StartingMessage()
         {   
             Console.Title = "RecordSplicingResults";
-            Console.WriteLine("Splice data backup Wizard v0.1.0");
+            Console.WriteLine("Splice data backup Wizard v1.0.0");
             Console.WriteLine();
             Console.WriteLine("This software connects to Fujikura FSM-100 series splicers to migrate splice "+
-            "data to the cloud. Note that the keypad will be locked during the backup.");
+            "data to the cloud. Please do not press any buttons on the splicer or open/close the cover while backups are in process.");
+        }
+
+        static bool HandleUserInput()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Enter [1] to backup splice data, [2] to backup splice mode settings, and [q] to quit:");
+            string? response = Console.ReadLine();
+            
+            if (!SplicerResting()) return false;
+
+            if (response == "1")
+            {
+                return true;
+            }
+            else if (response == "2")
+            {
+                
+                Console.WriteLine("Backing up splice mode settings...");
+                BackupUtils.Backup();
+                Console.WriteLine("Backup successful.");
+            }
+            else if (response == "q")
+            {
+                Console.WriteLine("Quitting...");
+                Environment.Exit(0);
+            }
+            else
+            {
+                Console.WriteLine($"Please enter [1], [2], or [q]. You entered: {response}.");
+            }
+
+            return false;
         }
         
         static void Main(string[] args)
         {
 
-            
+            try {
+                StartingMessage();   
+                while (true)
+                {   
+                    SplicerConnected();
 
-            StartingMessage();
+                    if (!HandleUserInput()) continue;
 
-            while (true)
-            {   
-                Console.WriteLine();
-                Console.WriteLine("Hit [ENTER] to continue, [CTRL+C] to quit:");
-                Console.ReadLine();
+                    string dirname = CreateNewSpliceDirectory();
+                    int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
 
-                if (!SplicerConnected()) continue;
-                if (!SplicerResting()) continue;
+                    Console.WriteLine("Backing up images...");
+                    GetImages(dirname);
 
-                SplicerUtils.splicer.Command("LOCK");
-                string dirname = CreateNewSpliceDirectory();
+                    Console.WriteLine("Backing up data...");
+                    CreateJSON(dirname, location);
 
-                
-                int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
+                    Console.WriteLine("Backing up settings...");
+                    BackupUtils.BackupSpecific(dirname, location);
 
-                Console.WriteLine(splicer.CommandAndReceiveText($"%SPL|FIBERTYPE"));
-
-                Console.WriteLine("Backing up images...");
-                GetImages(dirname);
-
-                Console.WriteLine("Backing up data...");
-                CreateJSON(dirname, location);
-
-                Console.WriteLine("Backing up settings...");
-                BackupUtils.BackupSpecific(dirname, location);
-                SplicerUtils.splicer.Command("UNLOCK");
-                Console.WriteLine("Unlocking keypad...");
-
-
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"FATAL ERROR: {e.Message}. Please try again or contact support.");
             }
         }
     }
