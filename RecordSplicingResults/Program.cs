@@ -32,10 +32,10 @@ namespace RecordSplicingResults
         static readonly string[] NONVOLATILE_MEM = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS", 
         "ESTMFDLOSS", "ESTMINLOSS", "CLVANGLEL", "CLVANGLER", "FIBERANGLE", "GAP", "COREOFSAFTER",
         "CLADOFSAFTER", "ERR", "FIBERTYPE", "MODETITLE1", "MODETITLE2"];
-        static readonly string[] VOLATILE_MEM = ["PRMDEFORM", "PRMINDEXDIF", "PRMOFFSET", 
-        "PRMCORESTEP", "PRMCORECURVE", "FIBERANGBEFORE", "FIBERANGBEFOREL", "FIBERANGBEFORER",
-        "FIBERANGAFTER", "FIBERANGAFTERL", "FIBERANGAFTERR", "CLADOFSBEFORE", "COREOFSBEFORE", 
-        "ARCPOWER", "ARCTIME", "AXISMOVEMENT"];
+        //static readonly string[] VOLATILE_MEM = ["PRMDEFORM", "PRMINDEXDIF", "PRMOFFSET", 
+        //"PRMCORESTEP", "PRMCORECURVE", "FIBERANGBEFORE", "FIBERANGBEFOREL", "FIBERANGBEFORER",
+        //"FIBERANGAFTER", "FIBERANGAFTERL", "FIBERANGAFTERR", "CLADOFSBEFORE", "COREOFSBEFORE", 
+        //"ARCPOWER", "ARCTIME", "AXISMOVEMENT"];
         static readonly string[] LEFTFIBERINFO =  ["LCLAMPAT", "LCOATINGDIAMETER", "LCLADDIAMETER2", "LCLADDIAMETER", 
         "LCOREDIAMETER", "LMFD", "LCLEAVELENGTH"];
         static readonly string[] RIGHTFIBERINFO = ["RCLAMPAT", "RCOATINGDIAMETER", "RCLADDIAMETER2", "RCLADDIAMETER", 
@@ -200,7 +200,7 @@ namespace RecordSplicingResults
             // getting splicer and splice info 
             unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO);
             unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
-            unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", []);
+            //unserializedJSON["VOLATILE_MEM"] = GetOutputAsDict("=DATH", []);
 
 
             // getting settings info
@@ -245,7 +245,7 @@ namespace RecordSplicingResults
                 if (!SplicerConnected()) continue;
                 if (!SplicerResting()) continue;
 
-                //SplicerUtils.splicer.Command("LOCK");
+                SplicerUtils.splicer.Command("LOCK");
                 string dirname = CreateNewSpliceDirectory();
 
                 
@@ -261,7 +261,7 @@ namespace RecordSplicingResults
 
                 Console.WriteLine("Backing up settings...");
                 BackupUtils.BackupSpecific(dirname, location);
-                //SplicerUtils.splicer.Command("UNLOCK");
+                SplicerUtils.splicer.Command("UNLOCK");
                 Console.WriteLine("Unlocking keypad...");
 
 

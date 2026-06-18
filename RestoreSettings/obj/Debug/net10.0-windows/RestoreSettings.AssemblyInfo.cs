@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestoreSettings")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1ba3beaa3902e9617143e265a540d38538748b1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea55e9c9fb70ed94cc009c70f8abbe9a0c8acdb4")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestoreSettings")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestoreSettings")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
