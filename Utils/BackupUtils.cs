@@ -3,10 +3,13 @@ using System.Diagnostics;
 using System.Text;
 using System.IO.Compression;
 using Utils;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Transfer;
 
 namespace Utils
 {
-
+    
     public static class BackupUtils
     {
         /*
@@ -16,7 +19,8 @@ namespace Utils
         
         
         public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
-        
+        private const string BucketName = "<PLACEHOLDER>";
+        private static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
         
         private static byte[] GetSpliceParameters(int spliceMode)
         {
@@ -42,7 +46,7 @@ namespace Utils
                 fs.Write(parameters, 0, parameters.Length);
             }
         }
-        public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true)
+        public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true, bool toCloud=true)
         {
             
             // choosing a directory name based on the date (and time, if there are conflicts)
@@ -64,12 +68,34 @@ namespace Utils
                 ZipFile.CreateFromDirectory(path, path+".zip");
                 foreach (FileInfo f in di.GetFiles()) f.Delete();
                 di.Delete();
+                if (toCloud) SendToCloud(path+".zip");
             }
 
         }
 
-        
+        public static void SendToCloud(string localPath)
+        {
+            string s3Key = $"<PLACEHOLDER>"; // name of backup in the bucket
+            using var s3Client = new AmazonS3Client(BucketRegion);
+            using var transferUtility = new TransferUtility(s3Client);
+            
+            var uploadRequest = new TransferUtilityUploadRequest
+            {
+                FilePath = localPath,
+                BucketName = BucketName,
+                Key = s3Key,
+                StorageClass = S3StorageClass.StandardInfrequentAccess  
+            };
 
+            //uploadRequest.UploadProgressEvent += (sender, e) =>
+            //{
+            //    Console.Write($"\rProgress: {e.PercentDone}");
+            //};
+
+            transferUtility.Upload(uploadRequest);
+
+        }
+        
     }
 
 }

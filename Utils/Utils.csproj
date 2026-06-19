@@ -17,4 +17,8 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="4.0.25.2" />
+  </ItemGroup>
+
 </Project>
