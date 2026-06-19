@@ -46,7 +46,7 @@ namespace Utils
                 fs.Write(parameters, 0, parameters.Length);
             }
         }
-        public static void Backup(string parentPath=BACKUP_LOCATION, bool compression=true, bool toCloud=true)
+        public static void Backup(string parentPath=BACKUP_LOCATION, bool toCloud=true)
         {
             
             // choosing a directory name based on the date (and time, if there are conflicts)
@@ -56,41 +56,36 @@ namespace Utils
 
 
             // creating the backup directory and adding splice mode files
-            DirectoryInfo di = Directory.CreateDirectory(path);
+            Directory.CreateDirectory(path);
             for (int i=1; i<SplicerUtils.MAX_MODENO+1; i++)
             {
                 BackupSpecific(path, i);
             }
 
             // turning the backup into a zip archive if needed
-            if (compression)
-            {
-                ZipFile.CreateFromDirectory(path, path+".zip");
-                foreach (FileInfo f in di.GetFiles()) f.Delete();
-                di.Delete();
-                if (toCloud) SendToCloud(path+".zip");
-            }
+            if (toCloud) SendToCloud(path);
 
         }
 
-        public static void SendToCloud(string localPath)
+        public static void SendToCloud(string path)
         {
+            var di = new DirectoryInfo(path);
+            ZipFile.CreateFromDirectory(path, path+".zip");
+            foreach (FileInfo f in di.GetFiles()) f.Delete();
+            di.Delete();
+            
+
             string s3Key = $"<PLACEHOLDER>"; // name of backup in the bucket
             using var s3Client = new AmazonS3Client(BucketRegion);
             using var transferUtility = new TransferUtility(s3Client);
             
             var uploadRequest = new TransferUtilityUploadRequest
             {
-                FilePath = localPath,
+                FilePath = path,
                 BucketName = BucketName,
                 Key = s3Key,
                 StorageClass = S3StorageClass.StandardInfrequentAccess  
             };
-
-            //uploadRequest.UploadProgressEvent += (sender, e) =>
-            //{
-            //    Console.Write($"\rProgress: {e.PercentDone}");
-            //};
 
             transferUtility.Upload(uploadRequest);
 
