@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Utils;
 using System.Linq.Expressions;
+using System.Data.Common;
 
 
 
@@ -95,7 +96,7 @@ namespace RecordSplicingResults
             string date = currentTime.ToString("yyyy-MM-dd");
             string time = currentTime.ToString("HHmm");
 
-            int serialNum = (int) GetOutputAsDict("=INF", ["SERNUM"])["SERNUM"];
+            int serialNum = (int) GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
 
             string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNum}\{date}\{time}";
             Directory.CreateDirectory(dirname);
@@ -152,34 +153,54 @@ namespace RecordSplicingResults
 
             handle.Free();
         }
-        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers)
+        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers, bool concatenate)
         {
             // <summary> Takes the output of the splicer and formats it into a dict </summary>
 
 
             Dictionary<string, object> pairs = new();
+            string splicerOutput;
+
+            if (concatenate) 
+            {
+                string newQuery = query;
+                foreach (string id in identifiers) newQuery+=$"|{id}";
+                splicerOutput = splicer.CommandAndReceiveText(newQuery);
+            }
+            else splicerOutput = splicer.CommandAndReceiveText(query);
+            
+
+            foreach (string id in identifiers) pairs[id] = GetResultFromId(splicerOutput, id)!;
 
 
-            string splicerOutput = splicer.CommandAndReceiveText(query);
-            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+            return pairs;
+        }
 
+        private static object? GetResultFromId(string splicerOutput, string id)
+        {
 
+            // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   
+            string pattern = @"(?<identifier>[^|=]+)=(?<result>[^|]*)";  
+            
             foreach (Match match in Regex.Matches(splicerOutput, pattern))
             {
-                string id = match.Groups["identifier"].Value;
-                string result = match.Groups["result"].Value; 
-
-
-                if (identifiers.Contains(id)){                
-                    // result can be a string, an int, or a float, so we auto-parse 
-                    // it for the sake of convenience/flexibility
-                    if (int.TryParse(result, out int resultAsInt)) pairs[id] = resultAsInt;
-                    else if (float.TryParse(result, out float resultAsFloat)) pairs[id] = resultAsFloat;
-                    else pairs[id] = result;
+                string matchedId = match.Groups["identifier"].Value;
+                string matchedResult = match.Groups["result"].Value; 
+                             
+                if (matchedId == id)
+                {
+                    return AutoParse(matchedResult);
                 }
             }   
 
-            return pairs;
+            return null;
+        }
+
+        private static object AutoParse(string result)
+        {
+            if (int.TryParse(result, out int resultAsInt)) return resultAsInt;
+            else if (float.TryParse(result, out float resultAsFloat)) return resultAsFloat;
+            else return result;
         }
 
         static void CreateJSON(string parentDir, int location)
@@ -189,16 +210,16 @@ namespace RecordSplicingResults
             Dictionary<string, object> unserializedJSON = new();
 
             // getting splicer and splice info 
-            unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO);
-            unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM);
+            unserializedJSON["SPLICER_INFO"] = GetOutputAsDict("=INF", SPLICER_INFO, true);
+            unserializedJSON["NONVOLATILE_MEM"] = GetOutputAsDict($"=MEM-{location}", NONVOLATILE_MEM, false);
 
             // getting settings info
             Dictionary<string, object> settings = new();
             unserializedJSON["SETTINGS"] = settings;
-            settings["LEFTFIBERINFO"] = GetOutputAsDict($"%SPL", LEFTFIBERINFO);
-            settings["RIGHTFIBERINFO"] = GetOutputAsDict($"%SPL", RIGHTFIBERINFO);
-            settings["MAINARC"] = GetOutputAsDict($"%SPL", MAINARC);
-            settings["ESTIMATION"] = GetOutputAsDict($"%SPL", ESTIMATION);
+            settings["LEFTFIBERINFO"] = GetOutputAsDict($"%SPL", LEFTFIBERINFO, true);
+            settings["RIGHTFIBERINFO"] = GetOutputAsDict($"%SPL", RIGHTFIBERINFO, true);
+            settings["MAINARC"] = GetOutputAsDict($"%SPL", MAINARC, true);
+            settings["ESTIMATION"] = GetOutputAsDict($"%SPL", ESTIMATION, true);
             
 
             // serializing JSON
@@ -255,34 +276,36 @@ namespace RecordSplicingResults
         
         static void Main(string[] args)
         {
+            
+        
+            StartingMessage();   
+            while (true)
+            {   
+                if (!SplicerConnected()) continue;
 
-            try {
-                StartingMessage();   
-                while (true)
-                {   
-                    SplicerConnected();
+                if (!HandleUserInput()) continue;
 
-                    if (!HandleUserInput()) continue;
+                // Splice data backup section
+                string dirname = CreateNewSpliceDirectory();
+                int location = (int) GetOutputAsDict("=MEMLATEST", ["MEMLATEST"], false)["MEMLATEST"];
 
-                    // Splice data backup section
-                    string dirname = CreateNewSpliceDirectory();
-                    int location = (int) GetOutputAsDict("=MEMLATEST", [])["MEMLATEST"];
+                Console.WriteLine("Backing up images...");
+                GetImages(dirname);
 
-                    Console.WriteLine("Backing up images...");
-                    GetImages(dirname);
+                Console.WriteLine("Backing up data...");
+                CreateJSON(dirname, location);
 
-                    Console.WriteLine("Backing up data...");
-                    CreateJSON(dirname, location);
+                Console.WriteLine("Backing up settings...");
+                BackupUtils.BackupSpecific(dirname, location);
 
-                    Console.WriteLine("Backing up settings...");
-                    BackupUtils.BackupSpecific(dirname, location);
-
-                }
             }
+            
+            /*
             catch (Exception e)
             {
                 Console.WriteLine($"FATAL ERROR: {e.Message}. Please try again or contact support.");
             }
+            */
         }
     }
 }
