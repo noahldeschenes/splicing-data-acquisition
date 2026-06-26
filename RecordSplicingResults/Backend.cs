@@ -4,12 +4,11 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Spectre.Console;
-using System.Drawing.Configuration;
+using Utils;
 
 
 
@@ -49,7 +48,7 @@ namespace RecordSplicingResults
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
 
 
-        static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
+        public static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
         
         public const char NAK = '\x15'; // ASCII code for NAK
         public static UsbFsm100ServerClass splicer = new();
@@ -212,12 +211,30 @@ namespace RecordSplicingResults
 
         }
 
-        static void BackupSplice()
+        public static void BackupLastSplice()
         {
-            
-        }
+            string dirname = CreateNewSpliceDirectory();
+            int location = (int) GetOutputAsDict("=MEMLATEST", ["MEMLATEST"], false)["MEMLATEST"];
+            AnsiConsole.Status()
+                .Start("[blue]Backing up data...[/]", ctx =>
+                {
+                    CreateJSON(dirname, location);
+                    AnsiConsole.MarkupLine("Data backed up.");
+                });
+            AnsiConsole.Status()
+                .Start("[blue]Backing up images...[/]", ctx =>
+                {
+                    GetImages(dirname);
+                    AnsiConsole.MarkupLine("Images backed up.");
+                });
 
-        
+            AnsiConsole.Status()
+                .Start("[blue]Backing up settings...[/]", ctx =>
+                {
+                    BackupUtils.BackupSpecific(dirname, location);
+                    AnsiConsole.MarkupLine("Data backed up.");
+                });
+        }
     }
 }
     

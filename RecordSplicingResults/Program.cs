@@ -3,6 +3,7 @@ using RecordSplicingResults;
 using System.Diagnostics;
 using Spectre.Console;
 using System;
+using Utils;
 
 static void SplicerConnected()
 {   
@@ -58,7 +59,26 @@ while (true)
     
     if (choice == "Backup most recent splice")
     {
-        
+        Backend.BackupLastSplice();
+    }
+    else if (choice == "Backup settings")
+    {
+        BackupUtils.Backup();
+    }
+    else if (choice == "Open backups in files")
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = Backend.RECORDS_DIRECTORY_PATH,
+            UseShellExecute = true 
+        };
+
+        Process.Start(startInfo);
+    }
+    else
+    {
+        AnsiConsole.MarkupLine("Quitting...");
+        Environment.Exit(0);
     }
 
 }
