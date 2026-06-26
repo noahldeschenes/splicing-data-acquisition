@@ -1,13 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "i7Ja2fGCXx0=",
+  "dgSpecHash": "4Nd0+W+xe28=",
   "success": true,
-  "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults/RecordSplicingResults.csproj",
+  "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
   "expectedPackageFiles": [
-    "/Users/noah.deschenes/.nuget/packages/spectre.console/0.57.1/spectre.console.0.57.1.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/spectre.console.ansi/0.57.1/spectre.console.ansi.0.57.1.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
+    "C:\\Users\\noah.deschenes\\.nuget\\packages\\spectre.console\\0.57.1\\spectre.console.0.57.1.nupkg.sha512",
+    "C:\\Users\\noah.deschenes\\.nuget\\packages\\spectre.console.ansi\\0.57.1\\spectre.console.ansi.0.57.1.nupkg.sha512"
   ],
   "logs": []
 }

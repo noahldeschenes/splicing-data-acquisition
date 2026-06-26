@@ -10,29 +10,43 @@ static void SplicerConnected()
     // <summary> Initializes the driver and checks if the splicer is connected. </summary>
     
     Backend.splicer.InitDriver(Process.GetCurrentProcess().Handle); 
-    if (Backend.splicer.ConnectionStatus) AnsiConsole.WriteLine("Splicer connected...");
+    
+
+    if (Backend.splicer.ConnectionStatus) 
+    {
+        AnsiConsole.MarkupLine("Splicer connected...");
+        return;
+    }
+    
 
 
     AnsiConsole.MarkupLine("[red]ERROR[/]: Splicer disconnected. Try disconnecting and reconnecting the usb cable between "+
     "the splicer and the computer.");
     AnsiConsole.Prompt(
-        new TextPrompt<string>("Press [green][[[Enter]]][/] to try again...")
+        new TextPrompt<string>("Press [green][[Enter]][/] to try again...")
             .AllowEmpty());
     
     
-
     Backend.splicer.InitDriver(Process.GetCurrentProcess().Handle); 
-    if (Backend.splicer.ConnectionStatus) AnsiConsole.WriteLine("Splicer connected...");
-
+    if (Backend.splicer.ConnectionStatus) 
+    {
+        AnsiConsole.MarkupLine("Splicer connected...");
+        return;
+    }
     
     AnsiConsole.MarkupLine("[red]ERROR[/]: Splicer still disconnected. Try turning the splicer off and back on.");
     AnsiConsole.Prompt(
-        new TextPrompt<string>("Press [green][[[Enter]]][/] to try again...")
+        new TextPrompt<string>(@"Press [green][[Enter]][/] to try again...")
             .AllowEmpty());
     
-
-    if (Backend.splicer.ConnectionStatus) AnsiConsole.WriteLine("Splicer connected...");
-
+    
+    Backend.splicer.InitDriver(Process.GetCurrentProcess().Handle); 
+    if (Backend.splicer.ConnectionStatus) 
+    {
+        AnsiConsole.MarkupLine("Splicer connected...");
+        return;
+    }
+    
 
     AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Splicer repeatedly not connecting. Exiting...");
     Environment.Exit(0);           
