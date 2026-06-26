@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "CUoClmsYwws=",
+  "dgSpecHash": "QfYAlOnBsBQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\Testing\\Testing.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/Testing/Testing.csproj",
+  "expectedPackageFiles": [
+    "/Users/noah.deschenes/.nuget/packages/spectre.console/0.57.1/spectre.console.0.57.1.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/spectre.console.ansi/0.57.1/spectre.console.ansi.0.57.1.nupkg.sha512"
+  ],
   "logs": []
 }

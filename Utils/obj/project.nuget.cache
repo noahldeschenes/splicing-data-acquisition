@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "7WHOK2IN5gA=",
+  "dgSpecHash": "v/FFmeOcPVA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\Utils\\Utils.csproj",
+  "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/Utils/Utils.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\noah.deschenes\\.nuget\\packages\\awssdk.core\\4.0.9.6\\awssdk.core.4.0.9.6.nupkg.sha512",
-    "C:\\Users\\noah.deschenes\\.nuget\\packages\\awssdk.s3\\4.0.25.2\\awssdk.s3.4.0.25.2.nupkg.sha512"
+    "/Users/noah.deschenes/.nuget/packages/awssdk.core/4.0.9.6/awssdk.core.4.0.9.6.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/awssdk.s3/4.0.25.2/awssdk.s3.4.0.25.2.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
   ],
   "logs": []
 }
