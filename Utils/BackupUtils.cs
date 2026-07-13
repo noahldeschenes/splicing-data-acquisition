@@ -46,7 +46,7 @@ namespace Utils
                 fs.Write(parameters, 0, parameters.Length);
             }
         }
-        public static void Backup(string parentPath=BACKUP_LOCATION, bool toCloud=true)
+        public static void Backup(string parentPath=BACKUP_LOCATION, bool toCloud=false)
         {
             
             // choosing a directory name based on the date (and time, if there are conflicts)

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Spectre.Console;
 using Utils;
+using System.Threading;
 
 
 
@@ -219,12 +220,14 @@ namespace RecordSplicingResults
                 .Start("[blue]Backing up data...[/]", ctx =>
                 {
                     CreateJSON(dirname, location);
+                    Thread.Sleep(100);
                     AnsiConsole.MarkupLine("Data backed up.");
                 });
             AnsiConsole.Status()
                 .Start("[blue]Backing up images...[/]", ctx =>
                 {
                     GetImages(dirname);
+                    Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Images backed up.");
                 });
 
@@ -232,7 +235,8 @@ namespace RecordSplicingResults
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
                     BackupUtils.BackupSpecific(dirname, location);
-                    AnsiConsole.MarkupLine("Data backed up.");
+                    Thread.Sleep(500);
+                    AnsiConsole.MarkupLine("Settings backed up.");
                 });
         }
     }

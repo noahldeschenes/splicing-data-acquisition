@@ -20,7 +20,7 @@ static void SplicerConnected()
     
 
 
-    AnsiConsole.MarkupLine("[red]ERROR[/]: Splicer disconnected. Try disconnecting and reconnecting the usb cable between "+
+    AnsiConsole.MarkupLine("\n[red]ERROR[/]: Splicer disconnected. Try disconnecting and reconnecting the usb cable between "+
     "the splicer and the computer.");
     AnsiConsole.Prompt(
         new TextPrompt<string>("Press [green][[Enter]][/] to try again...")
@@ -34,7 +34,7 @@ static void SplicerConnected()
         return;
     }
     
-    AnsiConsole.MarkupLine("[red]ERROR[/]: Splicer still disconnected. Try turning the splicer off and back on.");
+    AnsiConsole.MarkupLine("\n[red]ERROR[/]: Splicer still disconnected. Try turning the splicer off and back on.");
     AnsiConsole.Prompt(
         new TextPrompt<string>(@"Press [green][[Enter]][/] to try again...")
             .AllowEmpty());
@@ -48,7 +48,8 @@ static void SplicerConnected()
     }
     
 
-    AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Splicer repeatedly not connecting. Exiting...");
+    AnsiConsole.MarkupLine(@"\n[red]FATAL ERROR[/]: Splicer repeatedly not connecting.
+    Drivers may be dysfunctional. Exiting...");
     Environment.Exit(0);           
 }
 
@@ -94,5 +95,9 @@ while (true)
         AnsiConsole.MarkupLine("Quitting...");
         Environment.Exit(0);
     }
+
+    AnsiConsole.Prompt(
+        new TextPrompt<string>(@"Press [green][[Enter]][/] to continue...")
+            .AllowEmpty());
 
 }
