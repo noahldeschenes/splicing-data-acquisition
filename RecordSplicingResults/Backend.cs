@@ -60,6 +60,8 @@ namespace RecordSplicingResults
                 {07142, "ODIE"}
             };
 
+        public static bool continuousModeOn = false;
+
         static bool SplicerResting()
         {
             // <summary>Checks if the splicer is at a valid state for queries.</summary>
@@ -167,6 +169,11 @@ namespace RecordSplicingResults
             return pairs;
         }
 
+        public static object GetSingleResult(string query, string identifier, bool concatenate=false)
+        {
+            return GetOutputAsDict(query, [identifier], concatenate)[identifier];
+        }
+
         private static object? GetResultFromId(string splicerOutput, string id)
         {
 
@@ -221,11 +228,6 @@ namespace RecordSplicingResults
 
         }
 
-        public static object GetSingleResult(string query, string identifier)
-        {
-            return GetOutputAsDict(query, [identifier], false)[identifier];
-        }
-
         public static void BackupLastSplice()
         {
             string dirname = CreateNewSpliceDirectory();
@@ -254,6 +256,28 @@ namespace RecordSplicingResults
                 });
             
             Backend.currentBackupDirectory = null;
+        }
+
+        public static void BackupSplicesContinuously()
+        {
+            AnsiConsole.MarkupLine("Press [green][[Ctrl+C]][/] to end continuous backup.");
+            continuousModeOn = true;
+            object prevArcCount;
+            object currentArcCount;
+            
+            while (true){
+                prevArcCount = GetSingleResult("=INF", "TARCCOUNT", true);
+                if (prevArcCount != NAK) break;
+                Thread.Sleep(1000);
+                break;
+            }
+            
+            while (true)
+            {
+                currentArcCount = GetSingleResult("=INF", "TARCCOUNT", true);
+                while (currentArcCount == prevArcCount && currentArcCount != NAK) Thread.Sleep(1000);
+                BackupLastSplice();
+            }
         }
     }
 }

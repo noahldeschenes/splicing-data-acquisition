@@ -51,7 +51,8 @@ static void StartConsole(string[] args)
     {
         SplicerConnected();
 
-        var choices = new[] {"Backup most recent splice", "Backup settings", "Open backups in files", "Quit"};
+        var choices = new[] {"Backup most recent splice", "Backup splices continuously", 
+        "Backup settings", "Open backups in files", "Quit"};
 
         var choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -61,7 +62,10 @@ static void StartConsole(string[] args)
         switch (choice)
         {
             case "Backup most recent splice":
-                Backend.BackupLastSplice(); 
+                if (Backend.SplicerResting()) Backend.BackupLastSplice(); 
+                break;
+            case "Backup splices continuously":
+                Backend.BackupSplicesContinuously();
                 break;
             case "Backup settings":
                 BackupUtils.Backup(BackupUtils.BACKUP_LOCATION); //change this
@@ -91,7 +95,10 @@ try
     Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {
         Backend.currentBackupDirectory?.Delete(true);
-        AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
+
+        if (continuousModeOn) AnsiConsole.MarkupLine("\n[blue]Continuous backup stopped.[/]");
+        else AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
+        
         Environment.Exit(0);
     }
     );
