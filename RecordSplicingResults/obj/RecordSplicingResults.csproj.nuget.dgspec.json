@@ -47,6 +47,10 @@
           "framework": "net10.0-windows7.0",
           "targetAlias": "net10.0-windows",
           "dependencies": {
+            "AWSSDK.S3": {
+              "target": "Package",
+              "version": "[4.0.101.1, )"
+            },
             "Spectre.Console": {
               "target": "Package",
               "version": "[0.57.1, )"

@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Spectre.Console;
-using Utils;
 using System.Threading;
 
 
@@ -50,12 +49,16 @@ namespace RecordSplicingResults
 
 
         public static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
-        
+        public const int NUM_OF_MODES = 300; // 
         public const char NAK = '\x15'; // ASCII code for NAK
         public static UsbFsm100ServerClass splicer = new();
 
         public static DirectoryInfo? currentBackupDirectory = null; // used for cleanup when program fails
         
+        public static Dictionary<int, string> splicerNames = new Dictionary<int, string>
+            {
+                {07142, "ODIE"}
+            };
 
         static bool SplicerResting()
         {
@@ -81,8 +84,12 @@ namespace RecordSplicingResults
             string time = currentTime.ToString("HHmm");
 
             int serialNum = (int) GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
+            string name = "UNKNOWN";
+            if (splicerNames.ContainsKey(serialNum)) name = splicerNames[serialNum];
+            string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({name})";
 
-            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNum}\{date}\{time}";
+
+            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{time}";
             currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             return dirname;
@@ -214,29 +221,34 @@ namespace RecordSplicingResults
 
         }
 
+        public static object GetSingleResult(string query, string identifier)
+        {
+            return GetOutputAsDict(query, [identifier], false)[identifier];
+        }
+
         public static void BackupLastSplice()
         {
             string dirname = CreateNewSpliceDirectory();
-            int location = (int) GetOutputAsDict("=MEMLATEST", ["MEMLATEST"], false)["MEMLATEST"];
+            int location = (int) GetSingleResult("=MEMLATEST", "MEMLATEST");
             AnsiConsole.Status()
                 .Start("[blue]Backing up data...[/]", ctx =>
                 {
                     CreateJSON(dirname, location);
-                    Thread.Sleep(100);
+                    Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Data backed up.");
                 });
             AnsiConsole.Status()
                 .Start("[blue]Backing up images...[/]", ctx =>
                 {
                     GetImages(dirname);
-                    Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Images backed up.");
                 });
 
             AnsiConsole.Status()
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
-                    BackupUtils.BackupSpecific(dirname, location);
+                    int smode = (int) GetSingleResult("%SMODE", "SMODE");
+                    BackupUtils.BackupSpecific(dirname, smode);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");
                 });

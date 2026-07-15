@@ -2,6 +2,35 @@
   "version": 4,
   "targets": {
     "net10.0-windows": {
+      "AWSSDK.Core/4.0.100.5": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/AWSSDK.Core.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/AWSSDK.Core.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "AWSSDK.S3/4.0.101.1": {
+        "type": "package",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.100.5, 5.0.0)"
+        },
+        "compile": {
+          "lib/net8.0/AWSSDK.S3.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/AWSSDK.S3.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Spectre.Console/0.57.1": {
         "type": "package",
         "dependencies": {
@@ -34,6 +63,53 @@
     }
   },
   "libraries": {
+    "AWSSDK.Core/4.0.100.5": {
+      "sha512": "OYkCEqfNDh6uDlsCF+pBCOi9LvaEg9m2iU5xtbMci3yW8SpCIPOijiqB5OINIhdDvrQAltFd0x4BeYfF7GJVSw==",
+      "type": "package",
+      "path": "awssdk.core/4.0.100.5",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "awssdk.core.4.0.100.5.nupkg.sha512",
+        "awssdk.core.nuspec",
+        "images/AWSLogo.png",
+        "lib/net472/AWSSDK.Core.dll",
+        "lib/net472/AWSSDK.Core.xml",
+        "lib/net8.0/AWSSDK.Core.dll",
+        "lib/net8.0/AWSSDK.Core.xml",
+        "lib/netcoreapp3.1/AWSSDK.Core.dll",
+        "lib/netcoreapp3.1/AWSSDK.Core.xml",
+        "lib/netstandard2.0/AWSSDK.Core.dll",
+        "lib/netstandard2.0/AWSSDK.Core.xml",
+        "tools/account-management.ps1"
+      ]
+    },
+    "AWSSDK.S3/4.0.101.1": {
+      "sha512": "im0VVAu/dHFVPFBttps3rfKBehux3AOm0mbDn31vmwu+m0eOPrxNdxjoIDujZrcapbl9z6aafAWHtM2GA7Znpw==",
+      "type": "package",
+      "path": "awssdk.s3/4.0.101.1",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "analyzers/dotnet/cs/AWSSDK.S3.CodeAnalysis.dll",
+        "analyzers/dotnet/cs/SharedAnalysisCode.dll",
+        "awssdk.s3.4.0.101.1.nupkg.sha512",
+        "awssdk.s3.nuspec",
+        "images/AWSLogo.png",
+        "lib/net472/AWSSDK.S3.dll",
+        "lib/net472/AWSSDK.S3.xml",
+        "lib/net8.0/AWSSDK.S3.dll",
+        "lib/net8.0/AWSSDK.S3.xml",
+        "lib/netcoreapp3.1/AWSSDK.S3.dll",
+        "lib/netcoreapp3.1/AWSSDK.S3.xml",
+        "lib/netstandard2.0/AWSSDK.S3.dll",
+        "lib/netstandard2.0/AWSSDK.S3.xml",
+        "tools/install.ps1",
+        "tools/uninstall.ps1"
+      ]
+    },
     "Spectre.Console/0.57.1": {
       "sha512": "h/B0CJLR5Ba8yq+iVjjZR9JXMS+8a1syHmHhyZ6w5m8rHDWLGOlaKAhzJanHJL62rZxynLeVOx+43MKvskJ1lA==",
       "type": "package",
@@ -79,6 +155,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0-windows": [
+      "AWSSDK.S3 >= 4.0.101.1",
       "Spectre.Console >= 0.57.1"
     ]
   },
@@ -128,6 +205,10 @@
         "framework": "net10.0-windows7.0",
         "targetAlias": "net10.0-windows",
         "dependencies": {
+          "AWSSDK.S3": {
+            "target": "Package",
+            "version": "[4.0.101.1, )"
+          },
           "Spectre.Console": {
             "target": "Package",
             "version": "[0.57.1, )"

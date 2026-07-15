@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("RecordSplicingResults")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("BackupSettings")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a2380904a6bc7bfe5f5eb8ff41a0963026a4422")]
-[assembly: System.Reflection.AssemblyProductAttribute("RecordSplicingResults")]
-[assembly: System.Reflection.AssemblyTitleAttribute("RecordSplicingResults")]
+[assembly: System.Reflection.AssemblyProductAttribute("BackupSettings")]
+[assembly: System.Reflection.AssemblyTitleAttribute("BackupSettings")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]

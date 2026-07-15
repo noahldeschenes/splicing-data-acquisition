@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "E/hnv9m8+vI=",
+  "dgSpecHash": "NsJXOWuOiCs=",
   "success": true,
   "projectFilePath": "C:\\Users\\noah.deschenes\\Documents\\Splicing-Data-Acquisition\\RecordSplicingResults\\RecordSplicingResults.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\noah.deschenes\\.nuget\\packages\\awssdk.core\\4.0.100.5\\awssdk.core.4.0.100.5.nupkg.sha512",
+    "C:\\Users\\noah.deschenes\\.nuget\\packages\\awssdk.s3\\4.0.101.1\\awssdk.s3.4.0.101.1.nupkg.sha512",
     "C:\\Users\\noah.deschenes\\.nuget\\packages\\spectre.console\\0.57.1\\spectre.console.0.57.1.nupkg.sha512",
     "C:\\Users\\noah.deschenes\\.nuget\\packages\\spectre.console.ansi\\0.57.1\\spectre.console.ansi.0.57.1.nupkg.sha512"
   ],

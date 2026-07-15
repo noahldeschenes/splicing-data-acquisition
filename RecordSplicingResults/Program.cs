@@ -76,31 +76,31 @@ static void StartConsole(string[] args)
         }
 
         AnsiConsole.Prompt(
-            new TextPrompt<string>(@"Press [green][[Enter]][/] to continue...")
+            new TextPrompt<string>(@"\nPress [green][[Enter]][/] to continue...")
                 .AllowEmpty());
 
     }
 }
 
-static void Cleanup(object? sender=null, ConsoleCancelEventArgs? args=null, Exception? e=null)
-{
-    Backend.currentBackupDirectory?.Delete(true); // delete the backup directory if it exists
-    if (e != null) AnsiConsole.MarkupLine($"[red]FATAL ERROR[/]: {e.Message}");
-    else AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
-    Environment.Exit(1);
-}
 
 
-static void Main(string[] args)
-{
-    try
-    { 
-        Console.CancelKeyPress += new ConsoleCancelEventHandler(Cleanup);
-        StartConsole(args);
-    }
-    catch (Exception e)
+
+
+try
+{ 
+    Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {
-        Cleanup(null, null, e);
+        Backend.currentBackupDirectory?.Delete(true);
+        AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
+        Environment.Exit(0);
     }
-
+    );
+    StartConsole(args);
 }
+catch (Exception e)
+{
+    Backend.currentBackupDirectory?.Delete(true);
+    AnsiConsole.MarkupLine($"[red]FATAL ERROR[/]: {e.Message}");
+    Environment.Exit(0);
+}
+
