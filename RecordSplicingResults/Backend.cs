@@ -53,6 +53,8 @@ namespace RecordSplicingResults
         
         public const char NAK = '\x15'; // ASCII code for NAK
         public static UsbFsm100ServerClass splicer = new();
+
+        public static DirectoryInfo? currentBackupDirectory = null; // used for cleanup when program fails
         
 
         static bool SplicerResting()
@@ -81,7 +83,7 @@ namespace RecordSplicingResults
             int serialNum = (int) GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
 
             string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNum}\{date}\{time}";
-            Directory.CreateDirectory(dirname);
+            currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             return dirname;
                 
@@ -238,6 +240,8 @@ namespace RecordSplicingResults
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");
                 });
+            
+            Backend.currentBackupDirectory = null;
         }
     }
 }

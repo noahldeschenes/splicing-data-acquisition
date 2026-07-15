@@ -37,7 +37,9 @@ namespace RecordSplicingResults
             // <summary> Backs up a splice mode's parameters to a given directory. </summary>
 
             string id = $"{spliceMode}".PadLeft(3, '0'); //formatting spliceMode to have leading zeros (e.g. 001, 002, ..., 300)
-            string path = parentPath+@"\"+id;
+            string modeTitle = Backend.splicer.CommandAndReceiveText($"%SPL-{spliceMode}|MODETITLE1");
+            string path = parentPath+@"\"+id+" - "+modeTitle+".bin";
+
 
             // writing to file
             using (FileStream fs = File.Create(path))
@@ -46,17 +48,17 @@ namespace RecordSplicingResults
                 fs.Write(parameters, 0, parameters.Length);
             }
         }
-        public static void Backup(string parentPath=BACKUP_LOCATION, bool toCloud=false)
+        public static void Backup(string parentPath, bool toCloud=false)
         {
             
             // choosing a directory name based on the date (and time, if there are conflicts)
             DateTime currentTime = DateTime.UtcNow;
             string path = parentPath+@"\"+currentTime.ToString("yyyy-MM-dd");
-            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HH"); // adding hour to the name if there are multiple backups on the same day
+            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm"); 
 
 
             // creating the backup directory and adding splice mode files
-            Directory.CreateDirectory(path);
+            Backend.currentBackupDirectory = Directory.CreateDirectory(path);
             for (int i=1; i<SplicerUtils.MAX_MODENO+1; i++)
             {
                 BackupSpecific(path, i);
@@ -64,6 +66,7 @@ namespace RecordSplicingResults
 
             // turning the backup into a zip archive if needed
             if (toCloud) SendToCloud(path);
+            Backend.currentBackupDirectory = null; 
 
         }
 
@@ -89,6 +92,16 @@ namespace RecordSplicingResults
 
             transferUtility.Upload(uploadRequest);
 
+        }
+
+        public static void OpenBackups(){
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = Backend.RECORDS_DIRECTORY_PATH,
+                UseShellExecute = true 
+            };
+
+            Process.Start(startInfo);
         }
         
     }
