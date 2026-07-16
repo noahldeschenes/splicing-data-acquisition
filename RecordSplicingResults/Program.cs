@@ -6,35 +6,6 @@ using System;
 
 
 
-static void SplicerConnected()
-{   
-    // <summary> Initializes the driver and checks if the splicer is connected. </summary>
-
-    string message1 = "\n[red]ERROR[/]: Splicer disconnected. Try disconnecting and reconnecting the usb cable between "+
-    "the splicer and the computer.";
-    string message2 = "\n[red]ERROR[/]: Splicer still disconnected. Try turning the splicer off and back on.";
-    string message3 = "\n[red]FATAL ERROR[/]: Splicer repeatedly not connecting. Drivers may be dysfunctional. Exiting...";
-
-    string[] messages = {"", message1, message2, message3};
-
-    foreach (string msg in messages)
-    {
-        if (Backend.splicer.ConnectionStatus) 
-        {
-            AnsiConsole.MarkupLine("Splicer connected...");
-            return;
-        }
-
-        Backend.splicer.InitDriver(Process.GetCurrentProcess().Handle);
-        if (msg == "") continue; // first iteration is just to check if we need to initialize the driver
-
-        AnsiConsole.MarkupLine(msg);
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Press [green][[Enter]][/] to try again...")
-                .AllowEmpty());
-    }
-}
-
 
 static void StartConsole(string[] args)
 {
@@ -49,7 +20,7 @@ static void StartConsole(string[] args)
 
     while (true)
     {
-        SplicerConnected();
+        SplicerUtils.SplicerConnected();
 
         var choices = new[] {"Backup most recent splice", "Backup splices continuously", 
         "Backup settings", "Open backups in files", "Quit"};
@@ -62,13 +33,13 @@ static void StartConsole(string[] args)
         switch (choice)
         {
             case "Backup most recent splice":
-                if (Backend.SplicerResting()) Backend.BackupLastSplice(); 
+                if (SplicerUtils.SplicerResting()) BackupUtils.BackupLastSplice(); 
                 break;
             case "Backup splices continuously":
-                Backend.BackupSplicesContinuously();
+                BackupUtils.BackupSplicesContinuously();
                 break;
             case "Backup settings":
-                BackupUtils.Backup(BackupUtils.BACKUP_LOCATION); //change this
+                BackupUtils.BackupParameters(BackupUtils.BACKUP_LOCATION);
                 break;
             case "Open backups in files":
                 BackupUtils.OpenBackups();
@@ -94,9 +65,9 @@ try
 { 
     Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {
-        Backend.currentBackupDirectory?.Delete(true);
+        SplicerUtils.currentBackupDirectory?.Delete(true);
 
-        if (continuousModeOn) AnsiConsole.MarkupLine("\n[blue]Continuous backup stopped.[/]");
+        if (SplicerUtils.continuousModeOn) AnsiConsole.MarkupLine("\n[blue]Continuous backup stopped.[/]");
         else AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
         
         Environment.Exit(0);
@@ -106,7 +77,7 @@ try
 }
 catch (Exception e)
 {
-    Backend.currentBackupDirectory?.Delete(true);
+    SplicerUtils.currentBackupDirectory?.Delete(true);
     AnsiConsole.MarkupLine($"[red]FATAL ERROR[/]: {e.Message}");
     Environment.Exit(0);
 }
