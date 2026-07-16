@@ -53,73 +53,6 @@ namespace RecordSplicingResults
                 
         }
 
-        public static void SaveBMP(byte[] image, string outputPath)
-        {
-            // <summary>Saving the .BMP image that the splicer gives as a png.<\summary>
-
-
-            // VGA is a resolution display standard which is 480x640 pixels
-            int VGA_HEIGHT = 640;
-            int VGA_WIDTH = 480;
-
-            image = image[(image.Length-VGA_HEIGHT*VGA_WIDTH)..];
-
-            GCHandle handle = GCHandle.Alloc(image, GCHandleType.Pinned);
-            
-            using (Bitmap bmp = new Bitmap(VGA_WIDTH, VGA_HEIGHT, VGA_WIDTH, 
-                PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject()))
-            {
-                // creating color palette
-                ColorPalette pal = bmp.Palette;
-                for (int i = 0; i < 256; i++) pal.Entries[i] = System.Drawing.Color.FromArgb(i, i, i);
-                bmp.Palette = pal;
-
-                bmp.Save(outputPath, ImageFormat.Png);
-            }
-
-            handle.Free();
-        }
-
-        public static void BackupSpecificParameters(string parentPath, int spliceMode)
-        {
-            
-            // <summary> Backs up a splice mode's parameters to a given directory. </summary>
-
-            string id = $"{spliceMode}".PadLeft(3, '0'); //formatting spliceMode to have leading zeros (e.g. 001, 002, ..., 300)
-            string modeTitle = (string) SplicerUtils.GetSingleResult($"%SPL-{spliceMode}|MODETITLE1", "MODETITLE1");
-            string path = parentPath+@$"\{id} ({modeTitle})";
-
-
-            // writing to file
-            using (FileStream fs = File.Create(path))
-            {
-                byte[] parameters = SplicerUtils.GetSpliceParameters(spliceMode);
-                fs.Write(parameters, 0, parameters.Length);
-            }
-        }
-
-        public static void BackupParameters(string parentPath, bool toCloud=false)
-        {
-            
-            // choosing a directory name based on the date (and time, if there are conflicts)
-            DateTime currentTime = DateTime.UtcNow;
-            string path = parentPath+@"\"+currentTime.ToString("yyyy-MM-dd");
-            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm"); 
-
-
-            // creating the backup directory and adding splice mode files
-            SplicerUtils.currentBackupDirectory = Directory.CreateDirectory(path);
-            for (int i=1; i<SplicerUtils.NUM_OF_MODES+1; i++)
-            {
-                BackupSpecificParameters(path, i);
-            }
-
-            // turning the backup into a zip archive if needed
-            if (toCloud) SendDirectoryToS3(path);
-            SplicerUtils.currentBackupDirectory = null; 
-
-        }
-
         public static void SendDirectoryToS3(string path)
         {
             var di = new DirectoryInfo(path);
@@ -217,26 +150,6 @@ namespace RecordSplicingResults
         }  
         
 
-        public static void RestoreParameters(string path)
-        {
-
-            // checking backup is formatted correctly
-            for (int i=1; i<MAX_MODENO+1; i++)
-            {
-                string id = $"{i}".PadLeft(3, '0');
-                string filePath = path+@"\"+id;
-                if (!File.Exists(filePath)) throw new FileNotFoundException($"File for splice mode {i} not found at {filePath}.");
-                if (new FileInfo(filePath).Length != 4100) throw new InvalidDataException($"File for splice mode {i} is not 4100 bytes.");
-            }
-
-            // restoring splice modes
-            for (int i=1; i<MAX_MODENO+1; i++)
-            {
-                string id = $"{i}".PadLeft(3, '0');
-                string filePath = path+@"\"+id;
-                byte[] parameters = File.ReadAllBytes(filePath);
-                SplicerUtils.SetSpliceParameters(i, parameters);
-            }
-        } 
+        
     }
 }
