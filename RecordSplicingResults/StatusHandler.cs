@@ -2,9 +2,6 @@ using System;
 using System.Diagnostics;
 using Spectre.Console;
 
-using static RecordSplicingResults.BackupService;
-using static RecordSplicingResults.DataProcessor;
-using static RecordSplicingResults.ParamService;
 using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults

@@ -1,0 +1,6 @@
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.csproj.AssemblyReference.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.AssemblyInfoInputs.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.AssemblyInfo.cs
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.csproj.CoreCompileInputs.cache
+C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RecordSplicingResults.Tests\obj\Debug\net10.0\RecordSplicingResults.Tests.sourcelink.json

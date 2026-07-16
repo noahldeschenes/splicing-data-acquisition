@@ -1,12 +1,8 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.IO;
 using System.IO.Compression;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Amazon;
 using Amazon.S3;

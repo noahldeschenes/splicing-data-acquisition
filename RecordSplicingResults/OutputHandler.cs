@@ -2,12 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-
-using static RecordSplicingResults.BackupService;
-using static RecordSplicingResults.DataProcessor;
-using static RecordSplicingResults.StatusHandler;
-using static RecordSplicingResults.ParamService;
-
 namespace RecordSplicingResults
 {
     class OutputHandler

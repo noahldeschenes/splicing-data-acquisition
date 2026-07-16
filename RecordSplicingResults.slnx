@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RecordSplicingResults.Tests/RecordSplicingResults.Tests.csproj" />
+  <Project Path="RecordSplicingResults/RecordSplicingResults.csproj" />
+</Solution>

@@ -3,7 +3,6 @@ using System;
 using System.IO;
 
 using static RecordSplicingResults.BackupService;
-using static RecordSplicingResults.DataProcessor;
 using static RecordSplicingResults.StatusHandler;
 using static RecordSplicingResults.OutputHandler;
 
