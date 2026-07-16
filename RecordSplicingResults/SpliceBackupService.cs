@@ -46,7 +46,7 @@ namespace RecordSplicingResults
             string hour = currentTime.ToString("HH");
             string minute = currentTime.ToString("mm");
 
-            int serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
+            int? serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
             if (serialNum == null) throw new Exception("Splicer query failed.");
 
             string name = "UNKNOWN";
