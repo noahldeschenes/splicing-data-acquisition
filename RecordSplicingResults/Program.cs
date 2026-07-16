@@ -1,6 +1,7 @@
 ﻿
 using Spectre.Console;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 using static RecordSplicingResults.BackupService;
 using static RecordSplicingResults.DataProcessor;
@@ -11,7 +12,7 @@ using static RecordSplicingResults.OutputHandler;
 
 
 
-static void StartConsole(string[] args)
+static void StartConsole()
 {
     var panel = new Panel("This software connects to Fujikura FSM-100 series splicers to migrate splice "+
                 "data to the cloud. Please do not press any buttons on the splicer or open/close the cover while backups are in process.")
@@ -77,7 +78,15 @@ try
         Environment.Exit(0);
     }
     );
-    StartConsole(args);
+    var services = new ServiceCollection();
+
+    services.AddSingleton<IUsbFsm100ServerClass, UsbFsm100ServerClass>();
+
+    var serviceProvider = services.BuildServiceProvider();
+
+    splicer = serviceProvider.GetRequiredService<IUsbFsm100ServerClass>();
+
+    StartConsole();
 }
 catch (Exception e)
 {

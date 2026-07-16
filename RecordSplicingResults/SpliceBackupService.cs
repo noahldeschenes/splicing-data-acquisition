@@ -28,6 +28,8 @@ namespace RecordSplicingResults
         
         
         public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
+        public static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
+        public static bool continuousModeOn = false;
         private const string BucketName = "<PLACEHOLDER>";
         private static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
         public static DirectoryInfo? currentBackupDirectory = null; // used for cleanup when program fails
@@ -41,9 +43,10 @@ namespace RecordSplicingResults
             // <summary>Creates a new directory with structure [serial number]\[date]\[time]<\summary>
             DateTime currentTime = DateTime.Now;
             string date = currentTime.ToString("yyyy-MM-dd");
-            string time = currentTime.ToString("HHmm");
+            string hour = currentTime.ToString("HH");
+            string minute = currentTime.ToString("mm");
 
-            int? serialNum = (int?) GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
+            int serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
             if (serialNum == null) throw new Exception("Splicer query failed.");
 
             string name = "UNKNOWN";
@@ -51,7 +54,7 @@ namespace RecordSplicingResults
             string serialNumStr = $"{serialNum.Value.ToString().PadLeft(5, '0')} ({name})";
 
 
-            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{time}";
+            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{hour}h{minute}";
             currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             return dirname;
@@ -136,6 +139,7 @@ namespace RecordSplicingResults
             int POLLING_INTERVAL_MS = 1000;
             
             while (true){
+                SplicerConnected(false);
                 prevArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
                 if (prevArcCount != null) break;
                 Thread.Sleep(POLLING_INTERVAL_MS);
@@ -144,6 +148,7 @@ namespace RecordSplicingResults
             
             while (true)
             {
+                SplicerConnected(false);
                 currentArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
                 bool noNewArcs = currentArcCount==prevArcCount;
                 bool invalid = currentArcCount==null;
@@ -156,9 +161,6 @@ namespace RecordSplicingResults
                 BackupLastSplice();
                 prevArcCount = currentArcCount;
             }
-        }  
-        
-
-        
+        }   
     }
 }

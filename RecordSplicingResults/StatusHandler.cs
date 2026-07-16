@@ -6,7 +6,7 @@ using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    class StatusHandler
+    static class StatusHandler
     {
         public static bool SplicerResting(bool verbose=true)
         {
@@ -27,7 +27,7 @@ namespace RecordSplicingResults
             }
         }
 
-        public static void SplicerConnected()
+        public static void SplicerConnected(bool verbose=true)
         {   
             // <summary> Initializes the driver and checks if the splicer is connected. </summary>
 
@@ -41,8 +41,8 @@ namespace RecordSplicingResults
             foreach (string msg in messages)
             {
                 if (splicer.ConnectionStatus) 
-                {
-                    AnsiConsole.MarkupLine("Splicer connected...");
+                {   
+                    if (verbose) AnsiConsole.MarkupLine("Splicer connected...");
                     return;
                 }
 

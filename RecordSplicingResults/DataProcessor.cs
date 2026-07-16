@@ -13,7 +13,7 @@ using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    class DataProcessor
+    static class DataProcessor
     {
         static readonly string[] SPLICER_INFO = ["MODELNAME", "SERNUM", "TARCCOUNT"];
         static readonly string[] NONVOLATILE_MEM = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS", 
