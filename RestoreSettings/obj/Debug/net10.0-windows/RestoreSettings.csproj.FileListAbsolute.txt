@@ -1,6 +1,0 @@
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.csproj.AssemblyReference.cache
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.AssemblyInfoInputs.cache
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.AssemblyInfo.cs
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.csproj.CoreCompileInputs.cache
-C:\Users\noah.deschenes\Documents\Splicing-Data-Acquisition\RestoreSettings\obj\Debug\net10.0-windows\RestoreSettings.sourcelink.json

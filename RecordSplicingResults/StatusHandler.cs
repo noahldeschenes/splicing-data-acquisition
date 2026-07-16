@@ -1,7 +1,15 @@
+using System;
+using System.Diagnostics;
+using Spectre.Console;
+
+using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.DataProcessor;
+using static RecordSplicingResults.ParamService;
+using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    class StatusHandling
+    class StatusHandler
     {
         public static bool SplicerResting(bool verbose=true)
         {
@@ -35,13 +43,13 @@ namespace RecordSplicingResults
 
             foreach (string msg in messages)
             {
-                if (SplicerUtils.splicer.ConnectionStatus) 
+                if (splicer.ConnectionStatus) 
                 {
                     AnsiConsole.MarkupLine("Splicer connected...");
                     return;
                 }
 
-                SplicerUtils.splicer.InitDriver(Process.GetCurrentProcess().Handle);
+                splicer.InitDriver(Process.GetCurrentProcess().Handle);
                 if (msg == "") continue; // first iteration is just to check if we need to initialize the driver
 
                 AnsiConsole.MarkupLine(msg);

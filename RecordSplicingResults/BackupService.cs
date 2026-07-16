@@ -12,11 +12,18 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using Spectre.Console;
+using System.Collections.Generic;
+
+
+using static RecordSplicingResults.DataProcessor;
+using static RecordSplicingResults.StatusHandler;
+using static RecordSplicingResults.ParamService;
+using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
     
-    public static class BackupUtils
+    public static class BackupService
     {
         /*
         This class contains utility functions for communicating with the splicer 
@@ -40,14 +47,16 @@ namespace RecordSplicingResults
             string date = currentTime.ToString("yyyy-MM-dd");
             string time = currentTime.ToString("HHmm");
 
-            int serialNum = (int) SplicerUtils.GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
+            int? serialNum = (int?) GetOutputAsDict("=INF", ["SERNUM"], true)["SERNUM"];
+            if (serialNum == null) throw new Exception("Splicer query failed.");
+
             string name = "UNKNOWN";
-            if (SplicerUtils.splicerNames.ContainsKey(serialNum)) name = SplicerUtils.splicerNames[serialNum];
-            string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({name})";
+            if (splicerNames.ContainsKey(serialNum.Value)) name = splicerNames[serialNum.Value];
+            string serialNumStr = $"{serialNum.Value.ToString().PadLeft(5, '0')} ({name})";
 
 
-            string dirname = SplicerUtils.RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{time}";
-            SplicerUtils.currentBackupDirectory = Directory.CreateDirectory(dirname);
+            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{time}";
+            currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             return dirname;
                 
@@ -80,7 +89,7 @@ namespace RecordSplicingResults
         public static void OpenBackups(){
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = SplicerUtils.RECORDS_DIRECTORY_PATH,
+                FileName = RECORDS_DIRECTORY_PATH,
                 UseShellExecute = true 
             };
 
@@ -90,11 +99,13 @@ namespace RecordSplicingResults
         public static void BackupLastSplice()
         {
             string dirname = CreateNewSpliceDirectory();
-            int location = (int) SplicerUtils.GetSingleResult("=MEMLATEST", "MEMLATEST");
+            int? location = (int?) GetSingleResult("=MEMLATEST", "MEMLATEST");
+            if (location == null) throw new Exception("Splicer query failed.");
+
             AnsiConsole.Status()
                 .Start("[blue]Backing up data...[/]", ctx =>
                 {
-                    string serializedJSON = SplicerUtils.CreateJSON(dirname, location);
+                    string serializedJSON = CreateJSON(dirname, location.Value);
                     File.WriteAllText(dirname + @"\spliceData.JSON", serializedJSON);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Data backed up.");
@@ -102,44 +113,46 @@ namespace RecordSplicingResults
             AnsiConsole.Status()
                 .Start("[blue]Backing up images...[/]", ctx =>
                 {
-                    SplicerUtils.GetImages(dirname);
+                    GetImages(dirname);
                     AnsiConsole.MarkupLine("Images backed up.");
                 });
 
             AnsiConsole.Status()
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
-                    int smode = (int) SplicerUtils.GetSingleResult("%SMODE", "SMODE");
-                    BackupSpecificParameters(dirname, smode);
+                    int? smode = (int?) GetSingleResult("%SMODE", "SMODE");
+                    if (smode == null) throw new Exception("Splicer query failed.");
+
+                    BackupSpecificParameters(dirname, smode.Value);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");
                 });
             
-            SplicerUtils.currentBackupDirectory = null;
+            currentBackupDirectory = null;
         }
 
         public static void BackupSplicesContinuously()
         {
             AnsiConsole.MarkupLine("Press [green][[Ctrl+C]][/] to end continuous backup.");
-            SplicerUtils.continuousModeOn = true;
-            object prevArcCount;
-            object currentArcCount;
+            continuousModeOn = true;
+            int? prevArcCount;
+            int?currentArcCount;
             int POLLING_INTERVAL_MS = 1000;
             
             while (true){
-                prevArcCount = SplicerUtils.GetSingleResult("=INF", "TARCCOUNT", true);
-                if (prevArcCount != SplicerUtils.NAK) break;
+                prevArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
+                if (prevArcCount != null) break;
                 Thread.Sleep(POLLING_INTERVAL_MS);
                 break;
             }
             
             while (true)
             {
-                currentArcCount = SplicerUtils.GetSingleResult("=INF", "TARCCOUNT", true);
-                bool noNewArcs = (currentArcCount == prevArcCount);
-                bool invalid = (currentArcCount == SplicerUtils.NAK);
+                currentArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
+                bool noNewArcs = currentArcCount==prevArcCount;
+                bool invalid = currentArcCount==null;
 
-                if (noNewArcs || invalid || !SplicerUtils.SplicerResting(false))
+                if (noNewArcs || invalid || !SplicerResting(false))
                 {
                     Thread.Sleep(POLLING_INTERVAL_MS); 
                     continue;

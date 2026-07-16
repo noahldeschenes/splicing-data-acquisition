@@ -4,6 +4,12 @@ using System.Diagnostics;
 using Spectre.Console;
 using System;
 
+using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.DataProcessor;
+using static RecordSplicingResults.StatusHandler;
+using static RecordSplicingResults.ParamService;
+using static RecordSplicingResults.OutputHandler;
+
 
 
 
@@ -20,7 +26,7 @@ static void StartConsole(string[] args)
 
     while (true)
     {
-        SplicerUtils.SplicerConnected();
+        SplicerConnected();
 
         var choices = new[] {"Backup most recent splice", "Backup splices continuously", 
         "Backup settings", "Open backups in files", "Quit"};
@@ -33,16 +39,16 @@ static void StartConsole(string[] args)
         switch (choice)
         {
             case "Backup most recent splice":
-                if (SplicerUtils.SplicerResting()) BackupUtils.BackupLastSplice(); 
+                if (SplicerResting()) BackupLastSplice(); 
                 break;
             case "Backup splices continuously":
-                BackupUtils.BackupSplicesContinuously();
+                BackupSplicesContinuously();
                 break;
             case "Backup settings":
-                BackupUtils.BackupParameters(BackupUtils.BACKUP_LOCATION);
+                BackupParameters(BACKUP_LOCATION);
                 break;
             case "Open backups in files":
-                BackupUtils.OpenBackups();
+                OpenBackups();
                 break;
             case "Quit":
                 AnsiConsole.MarkupLine("\nQuitting...");
@@ -65,9 +71,9 @@ try
 { 
     Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {
-        SplicerUtils.currentBackupDirectory?.Delete(true);
+        currentBackupDirectory?.Delete(true);
 
-        if (SplicerUtils.continuousModeOn) AnsiConsole.MarkupLine("\n[blue]Continuous backup stopped.[/]");
+        if (continuousModeOn) AnsiConsole.MarkupLine("\n[blue]Continuous backup stopped.[/]");
         else AnsiConsole.MarkupLine("[red]FATAL ERROR[/]: Program terminated unexpectedly.");
         
         Environment.Exit(0);
@@ -77,7 +83,7 @@ try
 }
 catch (Exception e)
 {
-    SplicerUtils.currentBackupDirectory?.Delete(true);
+    currentBackupDirectory?.Delete(true);
     AnsiConsole.MarkupLine($"[red]FATAL ERROR[/]: {e.Message}");
     Environment.Exit(0);
 }

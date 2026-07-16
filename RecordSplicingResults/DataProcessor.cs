@@ -1,8 +1,19 @@
 
+using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Text.Json;
+
+using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.StatusHandler;
+using static RecordSplicingResults.ParamService;
+using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    class JSONHandling
+    class DataProcessor
     {
         static readonly string[] SPLICER_INFO = ["MODELNAME", "SERNUM", "TARCCOUNT"];
         static readonly string[] NONVOLATILE_MEM = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS", 
@@ -64,11 +75,11 @@ namespace RecordSplicingResults
 
                 // getting image in X view
                 byte[] imgX = splicer.CommandAndReceiveBinary($"=IMGH-{id}-X");
-                BackupUtils.SaveBMPasPNG(imgX, dirname+@$"\{id}-X.png");
+                SaveBMPasPNG(imgX, dirname+@$"\{id}-X.png");
 
                 // getting image in Y view
                 byte[] imgY = splicer.CommandAndReceiveBinary($"=IMGH-{id}-Y");
-                BackupUtils.SaveBMPasPNG(imgY, dirname+@$"\{id}-Y.png");
+                SaveBMPasPNG(imgY, dirname+@$"\{id}-Y.png");
 
             }
         }
@@ -101,3 +112,4 @@ namespace RecordSplicingResults
         }
 
     }
+}

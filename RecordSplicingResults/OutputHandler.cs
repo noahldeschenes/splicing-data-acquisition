@@ -1,9 +1,23 @@
 
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+
+
+using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.DataProcessor;
+using static RecordSplicingResults.StatusHandler;
+using static RecordSplicingResults.ParamService;
 
 namespace RecordSplicingResults
 {
-    class OutputHandling
+    class OutputHandler
     {
+        public static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
+        public const int NUM_OF_MODES = 300; 
+        public const string NAK = "\x15"; // ASCII code for NAK
+        public static UsbFsm100ServerClass splicer = new();
+        public static bool continuousModeOn = false;
+
         private static object AutoParse(string result)
         {
             if (int.TryParse(result, out int resultAsInt)) return resultAsInt;
@@ -31,12 +45,12 @@ namespace RecordSplicingResults
             return null;
         }
         
-        public static Dictionary<string, object> GetOutputAsDict(string query, string[] identifiers, bool concatenate)
+        public static Dictionary<string, object?> GetOutputAsDict(string query, string[] identifiers, bool concatenate)
         {
             // <summary> Takes the output of the splicer and formats it into a dict </summary>
 
 
-            Dictionary<string, object> pairs = new();
+            Dictionary<string, object?> pairs = new();
             string splicerOutput;
 
             if (concatenate) 
@@ -52,7 +66,7 @@ namespace RecordSplicingResults
             return pairs;
         }
 
-        public static object GetSingleResult(string query, string identifier, bool concatenate=false)
+        public static object? GetSingleResult(string query, string identifier, bool concatenate=false)
         {
             return GetOutputAsDict(query, [identifier], concatenate)[identifier];
         }
