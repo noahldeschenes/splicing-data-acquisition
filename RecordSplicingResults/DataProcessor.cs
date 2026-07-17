@@ -10,6 +10,8 @@ using static RecordSplicingResults.BackupService;
 using static RecordSplicingResults.StatusHandler;
 using static RecordSplicingResults.ParamService;
 using static RecordSplicingResults.OutputHandler;
+using System;
+using Spectre.Console;
 
 namespace RecordSplicingResults
 {
@@ -87,7 +89,12 @@ namespace RecordSplicingResults
         public static void SaveBMPasPNG(byte[] image, string outputPath)
         {
             // <summary>Saving the .BMP image that the splicer gives as a png.<\summary>
-
+            
+            if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            {
+                AnsiConsole.MarkupLine("Image processing not supported for operating systems that aren't Windows 6.1+.");
+                return;
+            } 
 
             // VGA is a resolution display standard which is 480x640 pixels
             int VGA_HEIGHT = 640;

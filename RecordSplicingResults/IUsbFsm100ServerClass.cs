@@ -45,7 +45,7 @@ namespace RecordSplicingResults
         }
     }
 
-    public class DummyUsbFsm100ServerClass : IUsbFsm100ServerClass
+    public class MockUsbFsm100ServerClass : IUsbFsm100ServerClass
     {
         IEnumerator<string> commandAndReceiveTextValidInputs = new List<string>().GetEnumerator();
         IEnumerator<string> commandAndReceiveTextReturnValues = new List<string>().GetEnumerator();

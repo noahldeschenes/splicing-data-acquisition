@@ -38,7 +38,7 @@ namespace RecordSplicingResults
                 {07142, "ODIE"}
             };
         
-        static string CreateNewSpliceDirectory()
+        static string GetNewSpliceDirectoryPath()
         {
             // <summary>Creates a new directory with structure [serial number]\[date]\[time]<\summary>
             DateTime currentTime = DateTime.Now;
@@ -55,7 +55,6 @@ namespace RecordSplicingResults
 
 
             string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{hour}h{minute}";
-            currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             return dirname;
                 
@@ -97,7 +96,10 @@ namespace RecordSplicingResults
 
         public static void BackupLastSplice()
         {
-            string dirname = CreateNewSpliceDirectory();
+            string dirname = GetNewSpliceDirectoryPath();
+            currentBackupDirectory = Directory.CreateDirectory(dirname);
+
+
             int? location = (int?) GetSingleResult("=MEMLATEST", "MEMLATEST");
             if (location == null) throw new Exception("Splicer query failed.");
 
@@ -135,7 +137,7 @@ namespace RecordSplicingResults
             AnsiConsole.MarkupLine("Press [green][[Ctrl+C]][/] to end continuous backup.");
             continuousModeOn = true;
             int? prevArcCount;
-            int?currentArcCount;
+            int? currentArcCount;
             int POLLING_INTERVAL_MS = 1000;
             
             while (true){
