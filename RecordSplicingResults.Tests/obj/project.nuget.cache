@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "GT0rcGra054=",
+  "dgSpecHash": "y1awkMb4t1s=",
   "success": true,
   "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/RecordSplicingResults.Tests.csproj",
   "expectedPackageFiles": [
@@ -8,14 +8,14 @@
     "/Users/noah.deschenes/.nuget/packages/awssdk.s3/4.0.101.1/awssdk.s3.4.0.101.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/coverlet.collector/6.0.4/coverlet.collector.6.0.4.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.codecoverage/17.14.1/microsoft.codecoverage.17.14.1.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/microsoft.extensions.dependencyinjection/10.0.10/microsoft.extensions.dependencyinjection.10.0.10.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.10/microsoft.extensions.dependencyinjection.abstractions.10.0.10.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.net.test.sdk/17.14.1/microsoft.net.test.sdk.17.14.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.testplatform.objectmodel/17.14.1/microsoft.testplatform.objectmodel.17.14.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.testplatform.testhost/17.14.1/microsoft.testplatform.testhost.17.14.1.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/microsoft.win32.systemevents/10.0.0/microsoft.win32.systemevents.10.0.0.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/spectre.console/0.57.1/spectre.console.0.57.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/spectre.console.ansi/0.57.1/spectre.console.ansi.0.57.1.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/system.drawing.common/10.0.0/system.drawing.common.10.0.0.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/xunit/2.9.3/xunit.2.9.3.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/xunit.abstractions/2.0.3/xunit.abstractions.2.0.3.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/xunit.analyzers/1.18.0/xunit.analyzers.1.18.0.nupkg.sha512",
@@ -23,8 +23,7 @@
     "/Users/noah.deschenes/.nuget/packages/xunit.core/2.9.3/xunit.core.2.9.3.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/xunit.extensibility.core/2.9.3/xunit.extensibility.core.2.9.3.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/xunit.extensibility.execution/2.9.3/xunit.extensibility.execution.2.9.3.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/xunit.runner.visualstudio/3.1.4/xunit.runner.visualstudio.3.1.4.nupkg.sha512",
-    "/Users/noah.deschenes/.nuget/packages/microsoft.windowsdesktop.app.ref/10.0.8/microsoft.windowsdesktop.app.ref.10.0.8.nupkg.sha512"
+    "/Users/noah.deschenes/.nuget/packages/xunit.runner.visualstudio/3.1.4/xunit.runner.visualstudio.3.1.4.nupkg.sha512"
   ],
   "logs": []
 }

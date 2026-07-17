@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RecordSplicingResults
 {
-    static class OutputHandler
+    internal static class OutputHandler
     {
         
         public const int NUM_OF_MODES = 300; 
@@ -13,14 +13,14 @@ namespace RecordSplicingResults
         public static IUsbFsm100ServerClass splicer = new UsbFsm100ServerAdapter();
         
 
-        private static object AutoParse(string result)
+        internal static object AutoParse(string result)
         {
             if (int.TryParse(result, out int resultAsInt)) return resultAsInt;
             else if (float.TryParse(result, out float resultAsFloat)) return resultAsFloat;
             else return result;
         }
 
-        private static object? GetSpecificResultFromId(string splicerOutput, string id)
+        internal static object? GetSpecificResultFromId(string splicerOutput, string id)
         {
 
             // input form: IDENTIFIER1=RESULT1|IDENTIFIER2=RESULT2|...   

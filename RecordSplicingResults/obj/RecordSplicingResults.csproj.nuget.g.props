@@ -12,6 +12,10 @@
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="/Users/noah.deschenes/.nuget/packages/" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net10.0' AND '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgAWSSDK_Core Condition=" '$(PkgAWSSDK_Core)' == '' ">/Users/noah.deschenes/.nuget/packages/awssdk.core/4.0.100.5</PkgAWSSDK_Core>
+    <PkgAWSSDK_S3 Condition=" '$(PkgAWSSDK_S3)' == '' ">/Users/noah.deschenes/.nuget/packages/awssdk.s3/4.0.101.1</PkgAWSSDK_S3>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net10.0-windows' AND '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgAWSSDK_Core Condition=" '$(PkgAWSSDK_Core)' == '' ">/Users/noah.deschenes/.nuget/packages/awssdk.core/4.0.100.5</PkgAWSSDK_Core>
     <PkgAWSSDK_S3 Condition=" '$(PkgAWSSDK_S3)' == '' ">/Users/noah.deschenes/.nuget/packages/awssdk.s3/4.0.101.1</PkgAWSSDK_S3>

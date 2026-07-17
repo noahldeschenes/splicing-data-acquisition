@@ -6,7 +6,7 @@ using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    static class StatusHandler
+    internal static class StatusHandler
     {
         public static bool SplicerResting(bool verbose=true)
         {

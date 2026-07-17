@@ -111,10 +111,10 @@ C:/Users/noah.deschenes/Documents/Splicing-Data-Acquisition/RecordSplicingResult
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/.msCoverageSourceRootsMapping_RecordSplicingResults.Tests
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/CoverletSourceRootsMapping_RecordSplicingResults.Tests
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/xunit.abstractions.dll
-/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/xunit.runner.visualstudio.testadapter.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults.deps.json
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults.runtimeconfig.json
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/xunit.runner.visualstudio.testadapter.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults.Tests.deps.json
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults.Tests.runtimeconfig.json
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/RecordSplicingResults.Tests.dll
@@ -122,6 +122,8 @@ C:/Users/noah.deschenes/Documents/Splicing-Data-Acquisition/RecordSplicingResult
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/AWSSDK.Core.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/AWSSDK.S3.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.VisualStudio.CodeCoverage.Shim.dll
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.Extensions.DependencyInjection.dll
+/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.Extensions.DependencyInjection.Abstractions.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.TestPlatform.CoreUtilities.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.TestPlatform.PlatformAbstractions.dll
 /Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/bin/Debug/net10.0-windows/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
