@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
+
 namespace RecordSplicingResults
 {
     static class OutputHandler
@@ -9,7 +10,7 @@ namespace RecordSplicingResults
         
         public const int NUM_OF_MODES = 300; 
         public const string NAK = "\x15"; // ASCII code for NAK
-        public static IUsbFsm100ServerClass splicer;
+        public static IUsbFsm100ServerClass splicer = new UsbFsm100ServerAdapter();
         
 
         private static object AutoParse(string result)

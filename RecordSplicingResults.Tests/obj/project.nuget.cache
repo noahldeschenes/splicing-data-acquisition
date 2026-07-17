@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "8BDKzJKyq/s=",
+  "dgSpecHash": "GT0rcGra054=",
   "success": true,
   "projectFilePath": "/Users/noah.deschenes/C#/Splicing-Data-Acquisition/RecordSplicingResults.Tests/RecordSplicingResults.Tests.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,8 @@
     "/Users/noah.deschenes/.nuget/packages/awssdk.s3/4.0.101.1/awssdk.s3.4.0.101.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/coverlet.collector/6.0.4/coverlet.collector.6.0.4.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.codecoverage/17.14.1/microsoft.codecoverage.17.14.1.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/microsoft.extensions.dependencyinjection/10.0.10/microsoft.extensions.dependencyinjection.10.0.10.nupkg.sha512",
+    "/Users/noah.deschenes/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.10/microsoft.extensions.dependencyinjection.abstractions.10.0.10.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.net.test.sdk/17.14.1/microsoft.net.test.sdk.17.14.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.testplatform.objectmodel/17.14.1/microsoft.testplatform.objectmodel.17.14.1.nupkg.sha512",
     "/Users/noah.deschenes/.nuget/packages/microsoft.testplatform.testhost/17.14.1/microsoft.testplatform.testhost.17.14.1.nupkg.sha512",

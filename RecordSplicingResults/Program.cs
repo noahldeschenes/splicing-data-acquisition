@@ -1,7 +1,6 @@
 ﻿
 using Spectre.Console;
 using System;
-using Microsoft.Extensions.DependencyInjection;
 
 using static RecordSplicingResults.BackupService;
 using static RecordSplicingResults.DataProcessor;
@@ -78,13 +77,6 @@ try
         Environment.Exit(0);
     }
     );
-    var services = new ServiceCollection();
-
-    services.AddSingleton<IUsbFsm100ServerClass, UsbFsm100ServerClass>();
-
-    var serviceProvider = services.BuildServiceProvider();
-
-    splicer = serviceProvider.GetRequiredService<IUsbFsm100ServerClass>();
 
     StartConsole();
 }
