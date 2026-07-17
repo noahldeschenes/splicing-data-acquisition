@@ -7,7 +7,7 @@ namespace RecordSplicingResults
     public interface IUsbFsm100ServerClass
     {
         bool ConnectionStatus { get; }
-        void InitDriver(System.IntPtr handle);
+        void InitDriver(IntPtr handle);
         string CommandAndReceiveText(string command);
         byte[] CommandAndReceiveBinary(string command);
         void SendBinary(ref byte[] data, int length, int timeout);
@@ -24,7 +24,7 @@ namespace RecordSplicingResults
 
         public bool ConnectionStatus => _splicer.ConnectionStatus;
 
-        public void InitDriver(System.IntPtr handle)
+        public void InitDriver(IntPtr handle)
         {
             _splicer.InitDriver(handle);
         }
@@ -58,7 +58,7 @@ namespace RecordSplicingResults
 
         public bool ConnectionStatus => driverInitialized;
 
-        public void InitDriver(System.IntPtr handle)
+        public void InitDriver(IntPtr handle)
         {
             driverInitialized = true;
         }
