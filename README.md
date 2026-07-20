@@ -7,6 +7,7 @@ collects the following for the most recent splice performed with a splicer.
 - Prearc, warm splice, and cold images, each with the X and Y camera views
 - A JSON with cleave angles, fiber angles, estimated loss, etc
 - A binary backup for the splice mode used (e.g. FLEX-SMF V2)
+
 The second type of backup is a single directory containing 300 binaries, one for each of the splicer's splice modes.
 These are splice mode parameter backups, and can be used to return the splicer to a previous state.
 ### Destinations for backups
