@@ -68,7 +68,7 @@ namespace RecordSplicingResults
         /// <summary>
         /// Backs up the parameters for every splice mode.
         /// </summary>
-        /// <param name="parentPath">Path to the directory in which the backups will go</param>
+        /// <param name="parentPath">Path to the directory in which the backups will go.</param>
         /// <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
         public static void BackupAllParameters(string parentPath, bool toCloud=false)
         {
@@ -78,7 +78,7 @@ namespace RecordSplicingResults
             string splicerName = "UNKNOWN";
             if (SPLICER_NAMES.ContainsKey(serialNum.Value)) splicerName = SPLICER_NAMES[serialNum.Value];
 
-            string path = parentPath+@"\Splice mode parameter backups\"+splicerName;
+            string path = parentPath+@$"\Splice mode parameter backups\{serialNum} ({splicerName})\";
 
             // choosing a directory name based on the date (and time, if there are conflicts)
             DateTime currentTime = DateTime.UtcNow;

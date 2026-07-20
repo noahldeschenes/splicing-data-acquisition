@@ -37,7 +37,7 @@ namespace RecordSplicingResults
         /// </summary>
         /// <param name="smode">Splice mode the most recent splice used.</param>
         /// <returns>A path of the form:
-        ///  MAIN_BACKUPDIRECTORY\[serial number (splicer name)]\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
+        ///  MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
         /// <exception cref="Exception"></exception>
         private static string GetNewSpliceDirectoryPath(int smode)
         {
