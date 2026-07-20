@@ -1,0 +1,10 @@
+{
+  "[csharp]": {
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "on"
+    }
+  },
+  "editor.suggestOnTriggerCharacters": false
+}

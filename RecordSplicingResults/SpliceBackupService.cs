@@ -18,43 +18,44 @@ using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
-    
+    /// <summary>
+    /// Service class that deals with backing up splice data (not mode parameters).
+    /// </summary>
     public static class BackupService
     {
-        /*
-        This class contains utility functions for communicating with the splicer 
-        and backing up splice mode settings. 
-        */
         
-        
-        public const string BACKUP_LOCATION = @"C:\Users\noah.deschenes\Documents\Splicer Mode Settings Backups"; // TODO: Change this
-        public static readonly string RECORDS_DIRECTORY_PATH = @"C:\Users\noah.deschenes\Documents\Records"; // TODO: find directory
-        public static bool continuousModeOn = false;
-        private const string BucketName = "<PLACEHOLDER>";
+        internal static bool continuousModeOn = false;
         private static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
-        public static DirectoryInfo? currentBackupDirectory = null; // used for cleanup when program fails
-        public static Dictionary<int, string> splicerNames = new Dictionary<int, string>
-            {
-                {07142, "ODIE"}
-            };
-        
-        static string GetNewSpliceDirectoryPath()
+        internal static DirectoryInfo? currentBackupDirectory = null; // used for cleanup when program fails
+
+        internal static string MAIN_BACKUP_DIRECTORY = "";
+        internal static Dictionary<int, string> SPLICER_NAMES = [];
+        internal static string S3_BUCKET_NAME = "";
+
+        /// <summary>
+        /// Generates the appropriate path for the most recent splice.
+        /// </summary>
+        /// <param name="smode">Splice mode the most recent splice used.</param>
+        /// <returns>A path of the form:
+        ///  MAIN_BACKUPDIRECTORY\[serial number (splicer name)]\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
+        /// <exception cref="Exception"></exception>
+        private static string GetNewSpliceDirectoryPath(int smode)
         {
-            // <summary>Creates a new directory with structure [serial number]\[date]\[time]<\summary>
+            
             DateTime currentTime = DateTime.Now;
             string date = currentTime.ToString("yyyy-MM-dd");
             string hour = currentTime.ToString("HH");
             string minute = currentTime.ToString("mm");
 
             int? serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
-            if (serialNum == null) throw new Exception("Splicer query failed.");
+            string? modeTitle = (string?) GetSingleResult($"%SPL-{smode}|MODETITLE1", "MODETITLE1");
+            if (serialNum is null || modeTitle is null) throw new Exception("Splicer query failed.");
 
             string name = "UNKNOWN";
-            if (splicerNames.ContainsKey(serialNum.Value)) name = splicerNames[serialNum.Value];
+            if (SPLICER_NAMES.ContainsKey(serialNum.Value)) name = SPLICER_NAMES[serialNum.Value];
             string serialNumStr = $"{serialNum.Value.ToString().PadLeft(5, '0')} ({name})";
 
-
-            string dirname = RECORDS_DIRECTORY_PATH+@$"\{serialNumStr}\{date}\{hour}h{minute}";
+            string dirname = MAIN_BACKUP_DIRECTORY+@$"Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
 
             return dirname;
                 
@@ -75,7 +76,7 @@ namespace RecordSplicingResults
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 FilePath = path,
-                BucketName = BucketName,
+                BucketName = S3_BUCKET_NAME,
                 Key = s3Key,
                 StorageClass = S3StorageClass.StandardInfrequentAccess  
             };
@@ -84,29 +85,38 @@ namespace RecordSplicingResults
 
         }
 
+        /// <summary>
+        /// Opens MAIN_BACKUP_DIRECTORY to the user for easier navigation.
+        /// </summary>
         public static void OpenBackups(){
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = RECORDS_DIRECTORY_PATH,
+                FileName = MAIN_BACKUP_DIRECTORY,
                 UseShellExecute = true 
             };
 
             Process.Start(startInfo);
         }
 
+        /// <summary>
+        /// Gets the information that the splicer stores about the previous splice (images, 
+        /// cleave/fiber angles, etc) and backs it up to S3/the local filesystem.
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public static void BackupLastSplice()
         {
-            string dirname = GetNewSpliceDirectoryPath();
-            currentBackupDirectory = Directory.CreateDirectory(dirname);
-
 
             int? location = (int?) GetSingleResult("=MEMLATEST", "MEMLATEST");
-            if (location == null) throw new Exception("Splicer query failed.");
+            int? smode = (int?) GetSingleResult("%SMODE", "SMODE");
+            if (location is null || smode is null) throw new Exception("Splicer query failed.");
+
+            string dirname = GetNewSpliceDirectoryPath(smode.Value);
+            currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             AnsiConsole.Status()
                 .Start("[blue]Backing up data...[/]", ctx =>
                 {
-                    string serializedJSON = CreateJSON(dirname, location.Value);
+                    string serializedJSON = CreateJSON(location.Value);
                     File.WriteAllText(dirname + @"\spliceData.JSON", serializedJSON);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Data backed up.");
@@ -121,10 +131,8 @@ namespace RecordSplicingResults
             AnsiConsole.Status()
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
-                    int? smode = (int?) GetSingleResult("%SMODE", "SMODE");
-                    if (smode == null) throw new Exception("Splicer query failed.");
 
-                    BackupSpecificParameters(dirname, smode.Value);
+                    BackupParametersSpecific(dirname, smode.Value);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");
                 });
@@ -132,6 +140,10 @@ namespace RecordSplicingResults
             currentBackupDirectory = null;
         }
 
+        /// <summary>
+        /// This is an "automatic mode" which allows the user to back up splices without
+        /// needing to interact with the CLI.
+        /// </summary>
         public static void BackupSplicesContinuously()
         {
             AnsiConsole.MarkupLine("Press [green][[Ctrl+C]][/] to end continuous backup.");
@@ -141,7 +153,7 @@ namespace RecordSplicingResults
             int POLLING_INTERVAL_MS = 1000;
             
             while (true){
-                SplicerConnected(false);
+                TryConnect(false);
                 prevArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
                 if (prevArcCount != null) break;
                 Thread.Sleep(POLLING_INTERVAL_MS);
@@ -150,7 +162,7 @@ namespace RecordSplicingResults
             
             while (true)
             {
-                SplicerConnected(false);
+                TryConnect(false);
                 currentArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
                 bool noNewArcs = currentArcCount==prevArcCount;
                 bool invalid = currentArcCount==null;

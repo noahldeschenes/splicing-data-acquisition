@@ -15,6 +15,10 @@ using Spectre.Console;
 
 namespace RecordSplicingResults
 {
+    /// <summary>
+    /// A processor class which queries the splicer using methods in OutputHandler and
+    /// puts the results in a backup-able format. 
+    /// </summary>
     internal static class DataProcessor
     {
         static readonly string[] SPLICER_INFO = ["MODELNAME", "SERNUM", "TARCCOUNT"];
@@ -36,9 +40,14 @@ namespace RecordSplicingResults
         "MFDMISMATCHOFFSET", "MFDMISMATCHSENSITIVITY", "ESTMODEFOROLDMETHOD", "CORESTEPCOEF", 
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
 
-        public static string CreateJSON(string parentDir, int location)
+
+        /// <summary>
+        /// Queries the splicer for non-image data and serializes it into a JSON.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        internal static string CreateJSON(int location)
         {
-            // <summary>Queries the splicer for various info we want to keep in a JSON file.<\summary>
                
             Dictionary<string, object> unserializedJSON = new();
 
@@ -62,10 +71,13 @@ namespace RecordSplicingResults
 
         } 
 
-
-        public static void GetImages(string parentDir)
+        /// <summary>
+        /// Queries the splicer for prearc, warm splice, and cold images, each in the X and Y views.
+        /// </summary>
+        /// <param name="parentDir">Directory to put the \images\ directory into.</param>
+        internal static void GetImages(string parentDir)
         {
-            // <summary>Gets the prearc, warm splice, and cold splice images from the splicer.<\summary>
+            
             string dirname = parentDir+@"\images";
 
             Directory.CreateDirectory(dirname);
@@ -86,9 +98,14 @@ namespace RecordSplicingResults
             }
         }
 
-        public static void SaveBMPasPNG(byte[] image, string outputPath)
+
+        /// <summary>
+        /// Saving the BMP image that the splicer gives as a png.
+        /// </summary>
+        /// <param name="image">Bitmap image as a byte array.</param>
+        /// <param name="outputPath">Path where the png should be stored.</param>
+        internal static void SaveBMPasPNG(byte[] image, string outputPath)
         {
-            // <summary>Saving the .BMP image that the splicer gives as a png.<\summary>
             
             if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {

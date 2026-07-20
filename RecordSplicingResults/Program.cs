@@ -1,13 +1,15 @@
 ﻿
 using Spectre.Console;
 using System;
+using System.Text.Json;
 
 using static RecordSplicingResults.BackupService;
 using static RecordSplicingResults.DataProcessor;
 using static RecordSplicingResults.StatusHandler;
 using static RecordSplicingResults.ParamService;
 using static RecordSplicingResults.OutputHandler;
-
+using Amazon.S3.Model;
+using System.Collections.Generic;
 
 
 
@@ -24,7 +26,7 @@ static void StartConsole()
 
     while (true)
     {
-        SplicerConnected();
+        TryConnect();
 
         var choices = new[] {"Backup most recent splice", "Backup splices continuously", 
         "Backup settings", "Open backups in files", "Quit"};
@@ -43,7 +45,7 @@ static void StartConsole()
                 BackupSplicesContinuously();
                 break;
             case "Backup settings":
-                BackupParameters(BACKUP_LOCATION);
+                BackupAllParameters(MAIN_BACKUP_DIRECTORY);
                 break;
             case "Open backups in files":
                 OpenBackups();
@@ -67,6 +69,10 @@ static void StartConsole()
 
 try
 { 
+    MAIN_BACKUP_DIRECTORY= args[0];
+    S3_BUCKET_NAME = args[1];
+    SPLICER_NAMES = JsonSerializer.Deserialize<Dictionary<int, string>>(args[2])!;
+
     Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {
         currentBackupDirectory?.Delete(true);

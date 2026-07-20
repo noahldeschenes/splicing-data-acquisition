@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RecordSplicingResults</name>
+    </assembly>
+    <members>
+        <member name="T:RecordSplicingResults.DataProcessor">
+            <summary>
+            A processor class which queries the splicer using methods in OutputHandler and
+            puts the results in a backup-able format. 
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.DataProcessor.CreateJSON(System.Int32)">
+            <summary>
+            Queries the splicer for non-image data and serializes it into a JSON.
+            </summary>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RecordSplicingResults.DataProcessor.GetImages(System.String)">
+            <summary>
+            Queries the splicer for prearc, warm splice, and cold images, each in the X and Y views.
+            </summary>
+            <param name="parentDir">Directory to put the \images\ directory into.</param>
+        </member>
+        <member name="M:RecordSplicingResults.DataProcessor.SaveBMPasPNG(System.Byte[],System.String)">
+            <summary>
+            Saving the BMP image that the splicer gives as a png.
+            </summary>
+            <param name="image">Bitmap image as a byte array.</param>
+            <param name="outputPath">Path where the png should be stored.</param>
+        </member>
+        <member name="T:RecordSplicingResults.IUsbFsm100ServerClass">
+            <summary>
+            An interface used for dependency inversion for the UsbFsm100ServerClass class.
+            </summary>
+        </member>
+        <member name="T:RecordSplicingResults.UsbFsm100ServerAdapter">
+            <summary>
+            An adapter class for the real splicer, which implements IUsbFsm100ServerClass.
+            </summary>
+        </member>
+        <member name="T:RecordSplicingResults.MockUsbFsm100ServerClass">
+            <summary>
+            A mock splicer for use in testing.
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.OutputHandler.AutoParse(System.String)">
+            <summary>
+            Takes splicer output fields and parses them into their appropriate datatype
+            (ints, floats, strings).
+            </summary>
+            <param name="result">Splicer output being parsed.</param>
+            <returns>Splicer output correctly typed.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.OutputHandler.GetSpecificResultFromId(System.String,System.String)">
+            <summary>
+            Uses a regex to match a given identifier with a given result.
+            </summary>
+            <param name="splicerOutput">The unprocessed output string from the splicer.</param>
+            <param name="id">The identifier we want to extract from the output string.</param>
+            <returns>The result associated with the given identifier.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.OutputHandler.GetOutputAsDict(System.String,System.String[],System.Boolean)">
+            <summary>
+            Sends a query to the splicer and parses the result into a dict.
+            </summary>
+            <param name="query">Query to send to the splicer.</param>
+            <param name="identifiers">Identifiers to extract from splicer output.</param>
+            <param name="concatenate">Whether the desired identifiers need to be concatenated 
+            onto the end of the query string.</param>
+            <returns>An identifier->result dict.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.OutputHandler.GetSingleResult(System.String,System.String,System.Boolean)">
+            <summary>
+            Wrapper for GetOutputAsDict.
+            </summary>
+            <param name="query">Query to send to the splicer.</param>
+            <param name="identifier">Identifier to extract from splicer output.</param>
+            <param name="concatenate">Whether the desired identifier need to be concatenated 
+            onto the end of the query string.</param>
+            <returns>Result associated with the identifier.</returns>
+        </member>
+        <member name="T:RecordSplicingResults.ParamService">
+            <summary>
+            A service class which allows for backing up and restoring splice
+            mode parameters, to and from arbitrary directories.
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.GetSpliceParameters(System.Int32)">
+            <summary> Gets binary image of a given splice mode's parameters. </summary>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.SetSpliceParameters(System.Int32,System.Byte[])">
+            <summary>
+            Changes a particular splice mode number's parameters.
+            </summary>
+            <param name="spliceMode">Splice mode to be changed.</param>
+            <param name="parameters">A splice mode parameter binary image.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">Splice mode not between 1 and 300.</exception>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.BackupParametersSpecific(System.String,System.Int32)">
+            <summary>
+            Backs up a specific splice mode's parameters. 
+            </summary>
+            <param name="parentPath">Path to the directory in which to put the parameter backup.</param>  
+            <param name="spliceMode">The splice mode (1-300) to be backed up.</param>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.BackupAllParameters(System.String,System.Boolean)">
+            <summary>
+            Backs up the parameters for every splice mode.
+            </summary>
+            <param name="parentPath">Path to the directory in which the backups will go</param>
+            <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.RestoreAllParameters(System.String)">
+            <summary>
+            Takes a backup produced by BackupAllParameters and restores all of the splicer's
+            splice mode parameters. 
+            </summary>
+            <param name="path">Path to the directory containing the splice mode parameter backups.</param>
+            <exception cref="T:System.IO.FileNotFoundException">One of the 300 splice mode parameter files doesn't exist.</exception>
+            <exception cref="T:System.IO.InvalidDataException">The filesize for a parameter file is inc</exception>
+        </member>
+        <member name="T:RecordSplicingResults.BackupService">
+            <summary>
+            Service class that deals with backing up splice data (not mode parameters).
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.BackupService.GetNewSpliceDirectoryPath(System.Int32)">
+            <summary>
+            Generates the appropriate path for the most recent splice.
+            </summary>
+            <param name="smode">Splice mode the most recent splice used.</param>
+            <returns>A path of the form:
+             MAIN_BACKUPDIRECTORY\[serial number (splicer name)]\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:RecordSplicingResults.BackupService.OpenBackups">
+            <summary>
+            Opens MAIN_BACKUP_DIRECTORY to the user for easier navigation.
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.BackupService.BackupLastSplice">
+            <summary>
+            Gets the information that the splicer stores about the previous splice (images, 
+            cleave/fiber angles, etc) and backs it up to S3/the local filesystem.
+            </summary>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:RecordSplicingResults.BackupService.BackupSplicesContinuously">
+            <summary>
+            This is an "automatic mode" which allows the user to back up splices without
+            needing to interact with the CLI.
+            </summary>
+        </member>
+        <member name="T:RecordSplicingResults.StatusHandler">
+            <summary>
+            A handler class that deals with the splicer's status (connected vs. disconnected,
+            idle vs busy, etc).
+            </summary>
+        </member>
+        <member name="M:RecordSplicingResults.StatusHandler.SplicerResting(System.Boolean)">
+            <summary>
+            Checks if the splicer is at a valid state for queries.
+            </summary>
+            <param name="verbose">Boolean representing whether this method should print text.</param>
+            <returns>A boolean representing if the splicer is resting.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.StatusHandler.TryConnect(System.Boolean)">
+            <summary>
+            Gives the user troubleshooting instructions on how to connect the splicer, if disconnected.
+            </summary>
+            <param name="verbose">Boolean representing if a successful connection is printed.</param>
+        </member>
+    </members>
+</doc>

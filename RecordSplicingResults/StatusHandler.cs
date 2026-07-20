@@ -6,11 +6,19 @@ using static RecordSplicingResults.OutputHandler;
 
 namespace RecordSplicingResults
 {
+    /// <summary>
+    /// A handler class that deals with the splicer's status (connected vs. disconnected,
+    /// idle vs busy, etc).
+    /// </summary>
     internal static class StatusHandler
     {
-        public static bool SplicerResting(bool verbose=true)
-        {
-            // <summary>Checks if the splicer is at a valid state for queries.</summary>
+        /// <summary>
+        /// Checks if the splicer is at a valid state for queries.
+        /// </summary>
+        /// <param name="verbose">Boolean representing whether this method should print text.</param>
+        /// <returns>A boolean representing if the splicer is resting.</returns>
+        internal static bool SplicerResting(bool verbose=true)
+        { 
 
             string currentStatus = splicer.CommandAndReceiveText("=FUNCSTAT");
             if (currentStatus != "IDLE" && currentStatus != "ERRFIN" && currentStatus != "NOFIN") 
@@ -27,9 +35,12 @@ namespace RecordSplicingResults
             }
         }
 
-        public static void SplicerConnected(bool verbose=true)
+        /// <summary>
+        /// Gives the user troubleshooting instructions on how to connect the splicer, if disconnected.
+        /// </summary>
+        /// <param name="verbose">Boolean representing if a successful connection is printed.</param>
+        internal static void TryConnect(bool verbose=true)
         {   
-            // <summary> Initializes the driver and checks if the splicer is connected. </summary>
 
             string message1 = "\n[red]ERROR[/]: Splicer disconnected. Try disconnecting and reconnecting the usb cable between "+
             "the splicer and the computer.";

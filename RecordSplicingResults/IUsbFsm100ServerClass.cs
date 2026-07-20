@@ -4,7 +4,10 @@ using System.Collections.Generic;
 
 namespace RecordSplicingResults
 {
-    public interface IUsbFsm100ServerClass
+    /// <summary>
+    /// An interface used for dependency inversion for the UsbFsm100ServerClass class.
+    /// </summary>
+    internal interface IUsbFsm100ServerClass
     {
         bool ConnectionStatus { get; }
         void InitDriver(IntPtr handle);
@@ -13,7 +16,10 @@ namespace RecordSplicingResults
         void SendBinary(ref byte[] data, int length, int timeout);
     }
 
-    public class UsbFsm100ServerAdapter : IUsbFsm100ServerClass
+    /// <summary>
+    /// An adapter class for the real splicer, which implements IUsbFsm100ServerClass.
+    /// </summary>
+    internal class UsbFsm100ServerAdapter : IUsbFsm100ServerClass
     {
         private readonly UsbFsm100ServerClass _splicer;
 
@@ -45,7 +51,10 @@ namespace RecordSplicingResults
         }
     }
 
-    public class MockUsbFsm100ServerClass : IUsbFsm100ServerClass
+    /// <summary>
+    /// A mock splicer for use in testing.
+    /// </summary>
+    internal class MockUsbFsm100ServerClass : IUsbFsm100ServerClass
     {
         IEnumerator<string> commandAndReceiveTextValidInputs = new List<string>().GetEnumerator();
         IEnumerator<string> commandAndReceiveTextReturnValues = new List<string>().GetEnumerator();
