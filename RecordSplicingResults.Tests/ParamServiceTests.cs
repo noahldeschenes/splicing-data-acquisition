@@ -9,6 +9,7 @@ using static RecordSplicingResults.SpliceBackupService;
 namespace RecordSplicingResults.Tests;
 
 
+[Collection("Shared static state")]
 public class ParamServiceTests
 {
     [Fact]
@@ -24,6 +25,22 @@ public class ParamServiceTests
         string validPath = @"~\Splice mode parameter backups\00001 (UNKNOWN)\0001-01-01";
 
         Assert.Equal(validPath, GetNewParameterBackupPath(DateTime.MinValue));
+        
+    }
+    
+    [Fact]
+    public static void GetNewParameterBackupPath_MaxDateTime_Succeeds()
+    {
+
+        string[] crtValidInputs = ["=INF|SERNUM"];
+        string[] crtRetVals = ["SERNUM=123"];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        MAIN_BACKUP_DIRECTORY = "~";
+
+        string validPath = @"~\Splice mode parameter backups\00123 (UNKNOWN)\9999-12-31";
+
+        Assert.Equal(validPath, GetNewParameterBackupPath(DateTime.MaxValue));
         
     }
 }

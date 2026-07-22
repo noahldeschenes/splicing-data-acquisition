@@ -32,6 +32,12 @@ namespace RecordSplicingResults
         internal static Dictionary<int, string> SPLICER_NAMES = [];
         internal static string S3_BUCKET_NAME = "";
 
+        internal static string CleanFilePath(string path)
+        {
+            char[] invalidChars = ['<', '>', ':', '"', '/', '|', '?', '*'];
+            return string.Concat(path.Split(invalidChars));
+        }
+
         /// <summary>
         /// Generates the appropriate path for the most recent splice.
         /// </summary>
@@ -39,24 +45,23 @@ namespace RecordSplicingResults
         /// <returns>A path of the form:
         ///  MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
         /// <exception cref="Exception"></exception>
-        internal static string GetNewSpliceDirectoryPath(int smode)
+        internal static string GetNewSpliceDirectoryPath(int smode, DateTime currentTime)
         {
             
-            DateTime currentTime = DateTime.Now;
             string date = currentTime.ToString("yyyy-MM-dd");
             string hour = currentTime.ToString("HH");
             string minute = currentTime.ToString("mm");
 
             int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
-            string modeTitle = (string) GetSingleResult($"%SPL-{smode}|MODETITLE1", "MODETITLE1");
+            string modeTitle = (string) GetSingleResult($"%SPL-{smode}", "MODETITLE1", true);
 
             string name = "UNKNOWN";
             if (SPLICER_NAMES.ContainsKey(serialNum)) name = SPLICER_NAMES[serialNum];
             string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({name})";
 
-            string dirname = MAIN_BACKUP_DIRECTORY+@$"Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
+            string dirname = @$"\Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
 
-            return dirname;
+            return MAIN_BACKUP_DIRECTORY+CleanFilePath(dirname);
                 
         }
 
@@ -107,9 +112,9 @@ namespace RecordSplicingResults
 
             int location = (int) GetSingleResult("=MEMLATEST", "MEMLATEST");
             int smode = (int) GetSingleResult("%SMODE", "SMODE");
-            
+            DateTime currentTime = DateTime.Now;
 
-            string dirname = GetNewSpliceDirectoryPath(smode);
+            string dirname = GetNewSpliceDirectoryPath(smode, currentTime);
             currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             AnsiConsole.Status()
@@ -130,7 +135,6 @@ namespace RecordSplicingResults
             AnsiConsole.Status()
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
-
                     BackupParametersSpecific(dirname, smode);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");

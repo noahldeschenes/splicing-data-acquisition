@@ -8,6 +8,7 @@ using static RecordSplicingResults.StatusHandler;
 
 namespace RecordSplicingResults.Tests;
 
+[Collection("Shared static state")]
 public class StatusHandlerTests
 {
     [Fact]

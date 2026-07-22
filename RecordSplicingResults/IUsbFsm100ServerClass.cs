@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms.VisualStyles;
+using System.Linq;
+
 
 namespace RecordSplicingResults
 {
@@ -70,13 +71,13 @@ namespace RecordSplicingResults
 
         public bool ConnectionStatus => driverInitialized;
 
-        public MockUsbFsm100ServerClass(string[] crtvi, string[] crtrv, string[] crbvi, byte[] crbrv, byte[] sbvi, bool sbs = true)
+        public MockUsbFsm100ServerClass(string[] crtvi, string[] crtrv, string[] crbvi, byte[][] crbrv, byte[][] sbvi, bool sbs = true)
         {
-            commandAndReceiveTextValidInputs = (IEnumerator<string>) crtvi.GetEnumerator();
-            commandAndReceiveTextReturnValues = (IEnumerator<string>) crtrv.GetEnumerator();
-            commandAndReceiveBinaryValidInputs = (IEnumerator<string>) crbvi.GetEnumerator();
-            commandAndReceiveBinaryReturnValues = (IEnumerator<byte[]>) crbrv.GetEnumerator();
-            sendBinaryValidInputs = (IEnumerator<byte[]>) sbvi.GetEnumerator();
+            commandAndReceiveTextValidInputs = crtvi.AsEnumerable().GetEnumerator();
+            commandAndReceiveTextReturnValues = crtrv.AsEnumerable().GetEnumerator();
+            commandAndReceiveBinaryValidInputs =  crbvi.AsEnumerable().GetEnumerator();
+            commandAndReceiveBinaryReturnValues = crbrv.AsEnumerable().GetEnumerator();
+            sendBinaryValidInputs = sbvi.AsEnumerable().GetEnumerator();
             sendBinaryStrict = sbs;
             driverInitialized = false;
         }

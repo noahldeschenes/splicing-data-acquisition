@@ -144,11 +144,17 @@
             <param name="parentPath">Path to the directory in which to put the parameter backup.</param>  
             <param name="spliceMode">The splice mode (1-300) to be backed up.</param>
         </member>
-        <member name="M:RecordSplicingResults.ParamService.BackupAllParameters(System.String,System.Boolean)">
+        <member name="M:RecordSplicingResults.ParamService.GetNewParameterBackupPath(System.DateTime)">
+            <summary>
+            
+            </summary>
+            <param name="currentTime"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.BackupAllParameters(System.Boolean)">
             <summary>
             Backs up the parameters for every splice mode.
             </summary>
-            <param name="parentPath">Path to the directory in which the backups will go.</param>
             <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
         </member>
         <member name="M:RecordSplicingResults.ParamService.RestoreParametersSpecific(System.String,System.Int32,System.Boolean)">
@@ -168,12 +174,12 @@
             </summary>
             <param name="path">Path to the directory containing the splice mode parameter backups.</param>
         </member>
-        <member name="T:RecordSplicingResults.BackupService">
+        <member name="T:RecordSplicingResults.SpliceBackupService">
             <summary>
             Service class that deals with backing up splice data (not mode parameters).
             </summary>
         </member>
-        <member name="M:RecordSplicingResults.BackupService.GetNewSpliceDirectoryPath(System.Int32)">
+        <member name="M:RecordSplicingResults.SpliceBackupService.GetNewSpliceDirectoryPath(System.Int32,System.DateTime)">
             <summary>
             Generates the appropriate path for the most recent splice.
             </summary>
@@ -182,19 +188,19 @@
              MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:RecordSplicingResults.BackupService.OpenBackups">
+        <member name="M:RecordSplicingResults.SpliceBackupService.OpenBackups">
             <summary>
             Opens MAIN_BACKUP_DIRECTORY to the user for easier navigation.
             </summary>
         </member>
-        <member name="M:RecordSplicingResults.BackupService.BackupLastSplice">
+        <member name="M:RecordSplicingResults.SpliceBackupService.BackupLastSplice">
             <summary>
             Gets the information that the splicer stores about the previous splice (images, 
             cleave/fiber angles, etc) and backs it up to S3/the local filesystem.
             </summary>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:RecordSplicingResults.BackupService.BackupSplicesContinuously">
+        <member name="M:RecordSplicingResults.SpliceBackupService.BackupSplicesContinuously">
             <summary>
             This is an "automatic mode" which allows the user to back up splices without
             needing to interact with the CLI.
@@ -213,13 +219,13 @@
             <param name="verbose">Boolean representing whether this method should print text.</param>
             <returns>A boolean representing if the splicer is resting.</returns>
         </member>
-        <member name="M:RecordSplicingResults.StatusHandler.GetSplicerArcCount">
+        <member name="M:RecordSplicingResults.StatusHandler.GetSplicerArcCount(System.Int32)">
             <summary>
             Checks repeatedly for the # of arcs, even if the splicer throws NAKs.
             </summary>
             <returns>An int representing the arc count.</returns>
         </member>
-        <member name="M:RecordSplicingResults.StatusHandler.WaitForNewSplice">
+        <member name="M:RecordSplicingResults.StatusHandler.WaitForNewSplice(System.Int32)">
             <summary>
             Gets an arc count and waits for the count to increase (indicating a new splice).
             </summary>

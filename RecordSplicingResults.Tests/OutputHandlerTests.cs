@@ -6,7 +6,7 @@ using static RecordSplicingResults.OutputHandler;
 namespace RecordSplicingResults.Tests;
 
 
-
+[Collection("Shared static state")]
 public class OutputHandlerTests
 {
     [Fact]

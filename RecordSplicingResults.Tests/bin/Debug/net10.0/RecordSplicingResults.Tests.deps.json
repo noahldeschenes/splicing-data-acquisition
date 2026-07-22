@@ -10,7 +10,9 @@
         "dependencies": {
           "Microsoft.NET.Test.Sdk": "17.14.1",
           "RecordSplicingResults": "1.0.0",
-          "xunit": "2.9.3"
+          "xunit": "2.9.3",
+          "UsbCoreFsm100": "1.0.0.0",
+          "UsbFsm100Server": "1.0.0.0"
         },
         "runtime": {
           "RecordSplicingResults.Tests.dll": {}
@@ -417,19 +419,19 @@
           }
         }
       },
-      "UsbFsm100Server/1.0.0.0": {
-        "runtime": {
-          "UsbFsm100Server.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
-      },
       "UsbCoreFsm100/1.0.0.0": {
         "runtime": {
           "UsbCoreFsm100.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "UsbFsm100Server/1.0.0.0": {
+        "runtime": {
+          "UsbFsm100Server.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
           }
         }
       }
@@ -565,12 +567,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "UsbFsm100Server/1.0.0.0": {
+    "UsbCoreFsm100/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "UsbCoreFsm100/1.0.0.0": {
+    "UsbFsm100Server/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

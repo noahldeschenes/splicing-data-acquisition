@@ -75,13 +75,15 @@ namespace RecordSplicingResults
             string splicerName = "UNKNOWN";
             if (SPLICER_NAMES.ContainsKey(serialNum)) splicerName = SPLICER_NAMES[serialNum];
 
-            string path = MAIN_BACKUP_DIRECTORY+@$"\Splice mode parameter backups\{serialNum} ({splicerName})";
+            string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({splicerName})";
+
+            string path = @$"\Splice mode parameter backups\{serialNumStr}";
 
             // choosing a directory name based on the date (and time, if there are conflicts)
             path += @"\"+currentTime.ToString("yyyy-MM-dd");
             if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm");
 
-            return path;
+            return MAIN_BACKUP_DIRECTORY+CleanFilePath(path);
         }
 
         /// <summary>

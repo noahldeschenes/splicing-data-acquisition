@@ -10,6 +10,7 @@ using static RecordSplicingResults.ParamService;
 using static RecordSplicingResults.OutputHandler;
 using Amazon.S3.Model;
 using System.Collections.Generic;
+using RecordSplicingResults;
 
 
 
@@ -72,6 +73,9 @@ try
     MAIN_BACKUP_DIRECTORY= args[0];
     S3_BUCKET_NAME = args[1];
     SPLICER_NAMES = JsonSerializer.Deserialize<Dictionary<int, string>>(args[2])!;
+
+    splicer = new UsbFsm100ServerAdapter();
+
 
     Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, args) =>
     {

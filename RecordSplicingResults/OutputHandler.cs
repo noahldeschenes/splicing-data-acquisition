@@ -12,7 +12,7 @@ namespace RecordSplicingResults
         
         internal const int NUM_OF_MODES = 300; 
         internal const string NAK = "\x15"; // ASCII code for NAK
-        internal static IUsbFsm100ServerClass splicer = new UsbFsm100ServerAdapter();
+        internal static IUsbFsm100ServerClass splicer = new MockUsbFsm100ServerClass([],[],[],[],[]);
 
         /// <summary>
         /// Thrown when a query to the splicer returns an invalid output or a NAK
