@@ -77,13 +77,13 @@ namespace RecordSplicingResults
 
             string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({splicerName})";
 
-            string path = @$"\Splice mode parameter backups\{serialNumStr}";
+            string path = MAIN_BACKUP_DIRECTORY+@$"\Splice mode parameter backups\{serialNumStr}";
 
             // choosing a directory name based on the date (and time, if there are conflicts)
             path += @"\"+currentTime.ToString("yyyy-MM-dd");
             if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm");
 
-            return MAIN_BACKUP_DIRECTORY+CleanFilePath(path);
+            return path;
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ public class SpliceBackupServiceTests
         string[] crtValidInputs = ["=INF|SERNUM", "%SPL-1|MODETITLE1"];
         string[] crtRetVals = ["SERNUM=1", "MODETITLE1=FLEX-SMF V2"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         MAIN_BACKUP_DIRECTORY = "~";
 
         string correctPath = @"~\Splice data backups\00001 (UNKNOWN)\FLEX-SMF V2\0001-01-01\00h00";
@@ -35,7 +35,7 @@ public class SpliceBackupServiceTests
         string[] crtValidInputs = ["=INF|SERNUM", "%SPL-12|MODETITLE1"];
         string[] crtRetVals = ["SERNUM=123", "MODETITLE1=XAN: RCBI-SMF V1"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         MAIN_BACKUP_DIRECTORY = "~";
 
         string correctPath = @"~\Splice data backups\00123 (UNKNOWN)\XAN RCBI-SMF V1\9999-12-31\23h59";

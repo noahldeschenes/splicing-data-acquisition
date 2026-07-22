@@ -19,7 +19,7 @@ public class ParamServiceTests
         string[] crtValidInputs = ["=INF|SERNUM"];
         string[] crtRetVals = ["SERNUM=1"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         MAIN_BACKUP_DIRECTORY = "~";
 
         string validPath = @"~\Splice mode parameter backups\00001 (UNKNOWN)\0001-01-01";
@@ -35,7 +35,7 @@ public class ParamServiceTests
         string[] crtValidInputs = ["=INF|SERNUM"];
         string[] crtRetVals = ["SERNUM=123"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         MAIN_BACKUP_DIRECTORY = "~";
 
         string validPath = @"~\Splice mode parameter backups\00123 (UNKNOWN)\9999-12-31";

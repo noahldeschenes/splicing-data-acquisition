@@ -82,6 +82,18 @@ namespace RecordSplicingResults
             driverInitialized = false;
         }
 
+        public MockUsbFsm100ServerClass(string[] crtvi, string[] crtrv)
+        {
+            commandAndReceiveTextValidInputs = crtvi.AsEnumerable().GetEnumerator();
+            commandAndReceiveTextReturnValues = crtrv.AsEnumerable().GetEnumerator();
+            commandAndReceiveBinaryValidInputs =  new List<string>().AsEnumerable().GetEnumerator();
+            commandAndReceiveBinaryReturnValues = new List<byte[]>().AsEnumerable().GetEnumerator();
+            sendBinaryValidInputs = new List<byte[]>().AsEnumerable().GetEnumerator();
+            sendBinaryStrict = true;
+            driverInitialized = false;
+        }
+
+
         /// <summary>
         /// Mock InitDriver method.
         /// </summary>

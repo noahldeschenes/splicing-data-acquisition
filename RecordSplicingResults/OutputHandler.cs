@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System;
-using System.Security.Cryptography.X509Certificates;
 
 
 namespace RecordSplicingResults
@@ -32,9 +31,22 @@ namespace RecordSplicingResults
         /// <returns>Splicer output correctly typed.</returns>
         internal static object AutoParse(string result)
         {
-            if (int.TryParse(result, out int resultAsInt)) return resultAsInt;
-            else if (float.TryParse(result, out float resultAsFloat)) return resultAsFloat;
-            else return result;
+
+            Match match = Regex.Match(result, @"^-?\d+\.\d+");
+            if (match.Success)
+            {
+                if (float.TryParse(match.Value, out float resultAsFloat)) return resultAsFloat;
+            }
+
+            match = Regex.Match(result, @"^-?\d+");
+            if (match.Success)
+            {
+                if (int.TryParse(match.Value, out int resultAsInt)) return resultAsInt;
+            }
+            
+            
+            char[] invalidChars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
+            return string.Concat(result.Split(invalidChars));
         }
 
         /// <summary>

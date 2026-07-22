@@ -17,7 +17,7 @@ public class StatusHandlerTests
         string[] crtValidInputs = ["=INF|TARCCOUNT", "=INF|TARCCOUNT", "=INF|TARCCOUNT"];
         string[] crtRetVals = [NAK, NAK, "TARCCOUNT=1"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
 
         Assert.Equal(1, GetSplicerArcCount(1));
     }
@@ -28,7 +28,7 @@ public class StatusHandlerTests
         string[] crtValidInputs = ["=INF|TARCCOUNT", "=INF|TARCCOUNT", "=INF|TARCCOUNT"];
         string[] crtRetVals = ["TARCCOUNT=1", "TARCCOUNT=1", "TARCCOUNT=2"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
 
         GetSplicerArcCount(1);
     }

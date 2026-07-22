@@ -32,12 +32,6 @@ namespace RecordSplicingResults
         internal static Dictionary<int, string> SPLICER_NAMES = [];
         internal static string S3_BUCKET_NAME = "";
 
-        internal static string CleanFilePath(string path)
-        {
-            char[] invalidChars = ['<', '>', ':', '"', '/', '|', '?', '*'];
-            return string.Concat(path.Split(invalidChars));
-        }
-
         /// <summary>
         /// Generates the appropriate path for the most recent splice.
         /// </summary>
@@ -59,9 +53,9 @@ namespace RecordSplicingResults
             if (SPLICER_NAMES.ContainsKey(serialNum)) name = SPLICER_NAMES[serialNum];
             string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({name})";
 
-            string dirname = @$"\Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
+            string dirname = MAIN_BACKUP_DIRECTORY+@$"\Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
 
-            return MAIN_BACKUP_DIRECTORY+CleanFilePath(dirname);
+            return dirname;
                 
         }
 

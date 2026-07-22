@@ -19,9 +19,9 @@ public class OutputHandlerTests
         Assert.True(x1 is float);
         Assert.True(x2 is float);
         Assert.True(x3 is float);
-        Assert.Equal(0.1, (float) x1);
-        Assert.Equal(-1.5, (float) x2);
-        Assert.Equal(0.3, (float) x3);
+        Assert.True(Math.Abs(0.1-(float) x1)<0.00001);
+        Assert.True(Math.Abs(-1.5-(float) x2)<0.00001);
+        Assert.True(Math.Abs(0.3-(float)x3)<0.00001);
     
     }
 
@@ -35,9 +35,9 @@ public class OutputHandlerTests
         Assert.True(x1 is int);
         Assert.True(x2 is int);
         Assert.True(x3 is int);
-        Assert.Equal(1, (float) x1);
-        Assert.Equal(-1, (float) x2);
-        Assert.Equal(300, (float) x3);
+        Assert.Equal(1, (int) x1);
+        Assert.Equal(-1, (int) x2);
+        Assert.Equal(300, (int) x3);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=INF|SERNUM"];
         string[] crtRetVals = ["SERNUM=1"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         
         int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
 
@@ -105,7 +105,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=INF"];
         string[] crtRetVals = [NAK];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
 
         Assert.Throws<SplicerQueryFailedException>(() => GetSingleResult("=INF", "SERNUM", false));
         
@@ -120,7 +120,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=INF|MODELNAME|SERNUM|TARCCOUNT"];
         string[] crtRetVals = ["MODELNAME=FOO|SERNUM=1|TARCCOUNT=2"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
 
 
         var dict = new Dictionary<string, object>
@@ -141,7 +141,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=INF"];
         string[] crtRetVals = [NAK];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
 
 
         var dict = new Dictionary<string, object>
@@ -162,7 +162,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=MEM-1"];
         string[] crtRetVals = ["ESTLOSS=1.1|ESTOFFSETLOSS=0.5|GAP=4|ESTDEFORMLOSS=0.6"];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         var dict = new Dictionary<string, object>
         {
             ["ESTLOSS"] = 1.1,
@@ -181,7 +181,7 @@ public class OutputHandlerTests
         string[] crtValidInputs = ["=MEM-1|ESTLOSS|ESTOFFSETLOSS|ESTDEFORMLOSS"];
         string[] crtRetVals = [NAK];
 
-        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals);
         var dict = new Dictionary<string, object>
         {
             ["ESTLOSS"] = "",
