@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.SpliceBackupService;
 using static RecordSplicingResults.StatusHandler;
 using static RecordSplicingResults.OutputHandler;
 
@@ -65,24 +65,33 @@ namespace RecordSplicingResults
         }
 
         /// <summary>
-        /// Backs up the parameters for every splice mode.
+        /// 
         /// </summary>
-        /// <param name="parentPath">Path to the directory in which the backups will go.</param>
-        /// <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
-        public static void BackupAllParameters(string parentPath, bool toCloud=false)
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
+        internal static string GetNewParameterBackupPath(DateTime currentTime)
         {
-            
             int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
             string splicerName = "UNKNOWN";
             if (SPLICER_NAMES.ContainsKey(serialNum)) splicerName = SPLICER_NAMES[serialNum];
 
-            string path = parentPath+@$"\Splice mode parameter backups\{serialNum} ({splicerName})\";
+            string path = MAIN_BACKUP_DIRECTORY+@$"\Splice mode parameter backups\{serialNum} ({splicerName})";
 
             // choosing a directory name based on the date (and time, if there are conflicts)
-            DateTime currentTime = DateTime.UtcNow;
             path += @"\"+currentTime.ToString("yyyy-MM-dd");
             if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm");
 
+            return path;
+        }
+
+        /// <summary>
+        /// Backs up the parameters for every splice mode.
+        /// </summary>
+        /// <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
+        public static void BackupAllParameters(bool toCloud=false)
+        {
+            
+            string path = GetNewParameterBackupPath(DateTime.Now);
 
             // creating the backup directory and adding splice mode files
             currentBackupDirectory = Directory.CreateDirectory(path);

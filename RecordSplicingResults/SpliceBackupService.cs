@@ -21,7 +21,7 @@ namespace RecordSplicingResults
     /// <summary>
     /// Service class that deals with backing up splice data (not mode parameters).
     /// </summary>
-    public static class BackupService
+    public static class SpliceBackupService
     {
         
         internal static bool continuousModeOn = false;
@@ -105,17 +105,17 @@ namespace RecordSplicingResults
         public static void BackupLastSplice()
         {
 
-            int? location = (int?) GetSingleResult("=MEMLATEST", "MEMLATEST");
-            int? smode = (int?) GetSingleResult("%SMODE", "SMODE");
-            if (location is null || smode is null) throw new Exception("Splicer query failed.");
+            int location = (int) GetSingleResult("=MEMLATEST", "MEMLATEST");
+            int smode = (int) GetSingleResult("%SMODE", "SMODE");
+            
 
-            string dirname = GetNewSpliceDirectoryPath(smode.Value);
+            string dirname = GetNewSpliceDirectoryPath(smode);
             currentBackupDirectory = Directory.CreateDirectory(dirname);
 
             AnsiConsole.Status()
                 .Start("[blue]Backing up data...[/]", ctx =>
                 {
-                    string serializedJSON = CreateJSON(location.Value);
+                    string serializedJSON = CreateJSON(location);
                     File.WriteAllText(dirname + @"\spliceData.JSON", serializedJSON);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Data backed up.");
@@ -131,7 +131,7 @@ namespace RecordSplicingResults
                 .Start("[blue]Backing up settings...[/]", ctx =>
                 {
 
-                    BackupParametersSpecific(dirname, smode.Value);
+                    BackupParametersSpecific(dirname, smode);
                     Thread.Sleep(500);
                     AnsiConsole.MarkupLine("Settings backed up.");
                 });

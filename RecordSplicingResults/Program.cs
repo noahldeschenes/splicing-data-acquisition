@@ -3,7 +3,7 @@ using Spectre.Console;
 using System;
 using System.Text.Json;
 
-using static RecordSplicingResults.BackupService;
+using static RecordSplicingResults.SpliceBackupService;
 using static RecordSplicingResults.DataProcessor;
 using static RecordSplicingResults.StatusHandler;
 using static RecordSplicingResults.ParamService;
@@ -45,7 +45,7 @@ static void StartConsole()
                 BackupSplicesContinuously();
                 break;
             case "Backup settings":
-                BackupAllParameters(MAIN_BACKUP_DIRECTORY);
+                BackupAllParameters();
                 break;
             case "Open backups in files":
                 OpenBackups();

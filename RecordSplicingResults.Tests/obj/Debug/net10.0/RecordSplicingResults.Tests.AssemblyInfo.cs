@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RecordSplicingResults.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b4b31768bae21a0d72d8bf92cc11761066721d0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b528515306ed6f78555c3b29b2696b192b62fa87")]
 [assembly: System.Reflection.AssemblyProductAttribute("RecordSplicingResults.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RecordSplicingResults.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
