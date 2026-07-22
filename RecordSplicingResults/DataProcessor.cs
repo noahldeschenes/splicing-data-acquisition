@@ -44,8 +44,8 @@ namespace RecordSplicingResults
         /// <summary>
         /// Queries the splicer for non-image data and serializes it into a JSON.
         /// </summary>
-        /// <param name="location"></param>
-        /// <returns></returns>
+        /// <param name="location">Memory location for the most recent splice (1-3000).</param>
+        /// <returns>A serialized JSON.</returns>
         internal static string CreateJSON(int location)
         {
                
@@ -117,8 +117,11 @@ namespace RecordSplicingResults
             int VGA_HEIGHT = 640;
             int VGA_WIDTH = 480;
 
+            // There are metadata bytes at the start of the byte stream, so we only use the last VGA_HEIGHT*VGA_WIDTH bytes
             image = image[(image.Length-VGA_HEIGHT*VGA_WIDTH)..];
 
+
+            // Allocating memory that the garbage collector doesn't touch
             GCHandle handle = GCHandle.Alloc(image, GCHandleType.Pinned);
             
             using (Bitmap bmp = new Bitmap(VGA_WIDTH, VGA_HEIGHT, VGA_WIDTH, 

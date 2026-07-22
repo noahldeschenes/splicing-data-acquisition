@@ -1,4 +1,4 @@
-using System.Net.Mail;
+
 using RecordSplicingResults;
 using static RecordSplicingResults.OutputHandler;
 
@@ -83,5 +83,112 @@ public class OutputHandlerTests
         Assert.Equal("", (string?) x2);
     }
 
+    [Fact]
+    public void GetSingleResult_NeedsConcatenate_Succeeds()
+    {   
 
+        string[] crtValidInputs = ["=INF|SERNUM"];
+        string[] crtRetVals = ["SERNUM=1"];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        
+        int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
+
+        Assert.Equal(1, serialNum);
+        
+    }
+
+    [Fact]
+    public void GetSingleResult_NeedsConcatenate_RaisesException()
+    {   
+
+        string[] crtValidInputs = ["=INF"];
+        string[] crtRetVals = [NAK];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+
+        Assert.Throws<SplicerQueryFailedException>(() => GetSingleResult("=INF", "SERNUM", false));
+        
+    }
+
+    [Fact]
+    public void GetOutputAsDict_NeedsConcatenate_Succeeds()
+    {
+
+        string[] splicerInfo = ["MODELNAME", "SERNUM", "TARCCOUNT"];
+
+        string[] crtValidInputs = ["=INF|MODELNAME|SERNUM|TARCCOUNT"];
+        string[] crtRetVals = ["MODELNAME=FOO|SERNUM=1|TARCCOUNT=2"];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+
+
+        var dict = new Dictionary<string, object>
+        {
+            ["MODELNAME"] = "FOO",
+            ["SERNUM"] = 1,
+            ["TARCCOUNT"] = 2
+        };
+
+        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, true));
+    }
+    
+    [Fact]
+    public void GetOutputAsDict_NeedsConcatenate_Fails()
+    {
+        string[] splicerInfo = ["MODELNAME", "SERNUM", "TARCCOUNT"];
+
+        string[] crtValidInputs = ["=INF"];
+        string[] crtRetVals = [NAK];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+
+
+        var dict = new Dictionary<string, object>
+        {
+            ["MODELNAME"] = "",
+            ["SERNUM"] = "",
+            ["TARCCOUNT"] = ""
+        };
+
+        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, false));
+    }
+
+    [Fact]
+    public void GetOutputAsDict_NeedsNoConcatenate_Succeeds()
+    {
+        string[] mem = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS"];
+
+        string[] crtValidInputs = ["=MEM-1"];
+        string[] crtRetVals = ["ESTLOSS=1.1|ESTOFFSETLOSS=0.5|GAP=4|ESTDEFORMLOSS=0.6"];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        var dict = new Dictionary<string, object>
+        {
+            ["ESTLOSS"] = 1.1,
+            ["ESTOFFSETLOSS"] = 0.5,
+            ["ESTDEFORMLOSS"] = 0.6
+        };
+
+        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, false));
+    }
+
+    [Fact]
+    public void GetOutputAsDict_NeedsNoConcatenate_Fails()
+    {
+        string[] mem = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS"];
+
+        string[] crtValidInputs = ["=MEM-1|ESTLOSS|ESTOFFSETLOSS|ESTDEFORMLOSS"];
+        string[] crtRetVals = [NAK];
+
+        splicer = new MockUsbFsm100ServerClass(crtValidInputs, crtRetVals, [], [], []);
+        var dict = new Dictionary<string, object>
+        {
+            ["ESTLOSS"] = "",
+            ["ESTOFFSETLOSS"] = "",
+            ["ESTDEFORMLOSS"] = ""
+        };
+
+        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, true));
+    }
 }

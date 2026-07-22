@@ -39,7 +39,7 @@ namespace RecordSplicingResults
         /// <returns>A path of the form:
         ///  MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
         /// <exception cref="Exception"></exception>
-        private static string GetNewSpliceDirectoryPath(int smode)
+        internal static string GetNewSpliceDirectoryPath(int smode)
         {
             
             DateTime currentTime = DateTime.Now;
@@ -47,13 +47,12 @@ namespace RecordSplicingResults
             string hour = currentTime.ToString("HH");
             string minute = currentTime.ToString("mm");
 
-            int? serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
-            string? modeTitle = (string?) GetSingleResult($"%SPL-{smode}|MODETITLE1", "MODETITLE1");
-            if (serialNum is null || modeTitle is null) throw new Exception("Splicer query failed.");
+            int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
+            string modeTitle = (string) GetSingleResult($"%SPL-{smode}|MODETITLE1", "MODETITLE1");
 
             string name = "UNKNOWN";
-            if (SPLICER_NAMES.ContainsKey(serialNum.Value)) name = SPLICER_NAMES[serialNum.Value];
-            string serialNumStr = $"{serialNum.Value.ToString().PadLeft(5, '0')} ({name})";
+            if (SPLICER_NAMES.ContainsKey(serialNum)) name = SPLICER_NAMES[serialNum];
+            string serialNumStr = $"{serialNum.ToString().PadLeft(5, '0')} ({name})";
 
             string dirname = MAIN_BACKUP_DIRECTORY+@$"Splice data backups\{serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
 
@@ -148,32 +147,11 @@ namespace RecordSplicingResults
         {
             AnsiConsole.MarkupLine("Press [green][[Ctrl+C]][/] to end continuous backup.");
             continuousModeOn = true;
-            int? prevArcCount;
-            int? currentArcCount;
-            int POLLING_INTERVAL_MS = 1000;
-            
-            while (true){
-                TryConnect(false);
-                prevArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
-                if (prevArcCount != null) break;
-                Thread.Sleep(POLLING_INTERVAL_MS);
-                break;
-            }
             
             while (true)
             {
-                TryConnect(false);
-                currentArcCount = (int?) GetSingleResult("=INF", "TARCCOUNT", true);
-                bool noNewArcs = currentArcCount==prevArcCount;
-                bool invalid = currentArcCount==null;
-
-                if (noNewArcs || invalid || !SplicerResting(false))
-                {
-                    Thread.Sleep(POLLING_INTERVAL_MS); 
-                    continue;
-                } 
+                WaitForNewSplice(1000);
                 BackupLastSplice();
-                prevArcCount = currentArcCount;
             }
         }   
     }

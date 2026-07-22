@@ -19,7 +19,7 @@ namespace RecordSplicingResults
         /// <summary> Gets binary image of a given splice mode's parameters. </summary>
         internal static byte[] GetSpliceParameters(int spliceMode)
         {   
-            byte[] parameters = splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}"); // assuming spliceMode is in range 1-300
+            byte[] parameters = splicer.CommandAndReceiveBinary($"%SPLH-{spliceMode}"); 
             return parameters;
         }
 
@@ -51,8 +51,7 @@ namespace RecordSplicingResults
         {
             
             string id = $"{spliceMode}".PadLeft(3, '0'); //formatting spliceMode to have leading zeros (e.g. 001, 002, ..., 300)
-            string? modeTitle = (string?) GetSingleResult($"%SPL-{spliceMode}|MODETITLE1", "MODETITLE1");
-            if (modeTitle == null) throw new Exception("Splicer query failed.");
+            string modeTitle = (string) GetSingleResult($"%SPL-{spliceMode}|MODETITLE1", "MODETITLE1");
 
             string path = parentPath+@$"\{id} ({modeTitle})";
 
@@ -73,19 +72,16 @@ namespace RecordSplicingResults
         public static void BackupAllParameters(string parentPath, bool toCloud=false)
         {
             
-            int? serialNum = (int?) GetSingleResult("=INF", "SERNUM", true);
-            if (serialNum is null) throw new Exception("Splicer query failed.");
+            int serialNum = (int) GetSingleResult("=INF", "SERNUM", true);
             string splicerName = "UNKNOWN";
-            if (SPLICER_NAMES.ContainsKey(serialNum.Value)) splicerName = SPLICER_NAMES[serialNum.Value];
+            if (SPLICER_NAMES.ContainsKey(serialNum)) splicerName = SPLICER_NAMES[serialNum];
 
             string path = parentPath+@$"\Splice mode parameter backups\{serialNum} ({splicerName})\";
 
             // choosing a directory name based on the date (and time, if there are conflicts)
             DateTime currentTime = DateTime.UtcNow;
             path += @"\"+currentTime.ToString("yyyy-MM-dd");
-            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm"); 
-
-
+            if (Directory.Exists(path)) path += ", "+currentTime.ToString("HHmm");
 
 
             // creating the backup directory and adding splice mode files
@@ -102,32 +98,41 @@ namespace RecordSplicingResults
         }
 
         /// <summary>
+        /// Restores the splice parameters for a single splice mode. 
+        /// </summary>
+        /// <param name="path">Path to either the parent directory or the bin file itself.</param>
+        /// <param name="spliceMode">The splice mode number to restore (1-300).</param>
+        /// <param name="pathIsParent">Whether or not the path is to a parent directory or to the file itself.</param>
+        /// <exception cref="Exception">Wrong number of files that match the splice mode number.</exception>
+        /// <exception cref="InvalidDataException">File isn't 4100 bytes.</exception>
+        public static void RestoreParametersSpecific(string path, int spliceMode, bool pathIsParent=true)
+        {
+            if (pathIsParent) {
+                string searchPattern = spliceMode.ToString().PadLeft(3, '0')+"*";
+                string[] matchedFiles = Directory.GetFiles(path, searchPattern);
+                if (matchedFiles.Length > 1) throw new Exception($"Multiple backup files found for splice mode {spliceMode}.");
+                if (matchedFiles.Length == 0) throw new Exception($"No backup files found for splice mode {spliceMode}.");
+                path = matchedFiles[0];
+            }
+            if (new FileInfo(path).Length != 4100) throw new InvalidDataException($"File for splice mode {spliceMode} is not 4100 bytes.");
+
+            byte[] parameters = File.ReadAllBytes(path);
+            SetSpliceParameters(spliceMode, parameters);
+
+        }
+
+        /// <summary>
         /// Takes a backup produced by BackupAllParameters and restores all of the splicer's
         /// splice mode parameters. 
         /// </summary>
         /// <param name="path">Path to the directory containing the splice mode parameter backups.</param>
-        /// <exception cref="FileNotFoundException">One of the 300 splice mode parameter files doesn't exist.</exception>
-        /// <exception cref="InvalidDataException">The filesize for a parameter file is inc</exception>
         public static void RestoreAllParameters(string path)
         {
-
-            // checking backup is formatted correctly
             for (int i=1; i<NUM_OF_MODES+1; i++)
             {
-                string id = $"{i}".PadLeft(3, '0');
-                string filePath = path+@"\"+id;
-                if (!File.Exists(filePath)) throw new FileNotFoundException($"File for splice mode {i} not found at {filePath}.");
-                if (new FileInfo(filePath).Length != 4100) throw new InvalidDataException($"File for splice mode {i} is not 4100 bytes.");
+                RestoreParametersSpecific(path, i);
             }
-
-            // restoring splice modes
-            for (int i=1; i<NUM_OF_MODES+1; i++)
-            {
-                string id = $"{i}".PadLeft(3, '0');
-                string filePath = path+@"\"+id;
-                byte[] parameters = File.ReadAllBytes(filePath);
-                SetSpliceParameters(i, parameters);
-            }
+            // maybe add console output here
         } 
     }
 }

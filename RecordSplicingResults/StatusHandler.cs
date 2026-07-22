@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Diagnostics;
 using Spectre.Console;
 
@@ -34,6 +35,44 @@ namespace RecordSplicingResults
                 return true;
             }
         }
+
+
+        /// <summary>
+        /// Checks repeatedly for the # of arcs, even if the splicer throws NAKs.
+        /// </summary>
+        /// <returns>An int representing the arc count.</returns>
+        internal static int GetSplicerArcCount(int waitTimeMillis)
+        {
+            int arcCount; 
+            while (true){
+                TryConnect(false);
+                try 
+                {
+                    arcCount = (int) GetSingleResult("=INF", "TARCCOUNT", true);
+                }
+                catch (SplicerQueryFailedException) {continue;}
+                
+                Thread.Sleep(waitTimeMillis);
+                break;
+            }
+            return arcCount;
+        }
+
+        /// <summary>
+        /// Gets an arc count and waits for the count to increase (indicating a new splice).
+        /// </summary>
+        internal static void WaitForNewSplice(int waitTimeMillis)
+        {
+            int prevArcCount = GetSplicerArcCount(waitTimeMillis);
+            while (true)
+            {
+                int curArcCount = GetSplicerArcCount(waitTimeMillis);
+                if (curArcCount != prevArcCount && SplicerResting()) return; 
+                Thread.Sleep(waitTimeMillis);
+            }
+        }
+
+
 
         /// <summary>
         /// Gives the user troubleshooting instructions on how to connect the splicer, if disconnected.

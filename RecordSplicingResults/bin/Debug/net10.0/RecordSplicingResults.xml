@@ -14,8 +14,8 @@
             <summary>
             Queries the splicer for non-image data and serializes it into a JSON.
             </summary>
-            <param name="location"></param>
-            <returns></returns>
+            <param name="location">Memory location for the most recent splice (1-3000).</param>
+            <returns>A serialized JSON.</returns>
         </member>
         <member name="M:RecordSplicingResults.DataProcessor.GetImages(System.String)">
             <summary>
@@ -45,6 +45,45 @@
             A mock splicer for use in testing.
             </summary>
         </member>
+        <member name="M:RecordSplicingResults.MockUsbFsm100ServerClass.InitDriver(System.IntPtr)">
+            <summary>
+            Mock InitDriver method.
+            </summary>
+            <param name="handle">Handle to the current process.</param>
+        </member>
+        <member name="M:RecordSplicingResults.MockUsbFsm100ServerClass.CommandAndReceiveText(System.String)">
+            <summary>
+            Uses input+output streams to act like CommandAndReceiveText().
+            </summary>
+            <param name="command">Command being sent to the mock splicer.</param>
+            <returns>A mock string formatted like the splicer's return strings.</returns>
+            <exception cref="T:System.InvalidOperationException">Method was called unexpectedly.</exception>
+            <exception cref="T:System.ArgumentException">Input to method did not match input stream.</exception>
+        </member>
+        <member name="M:RecordSplicingResults.MockUsbFsm100ServerClass.CommandAndReceiveBinary(System.String)">
+            <summary>
+            Uses input+output streams to act like CommandAndReceiveBinary().
+            </summary>
+            <param name="command">Command being sent to the mock splicer.</param>
+            <returns>A mock binary array formatted like the splicer's return binary arrays.</returns>
+            <exception cref="T:System.InvalidOperationException">Method was called unexpectedly.</exception>
+            <exception cref="T:System.ArgumentException">Input to method did not match input stream.</exception>
+        </member>
+        <member name="M:RecordSplicingResults.MockUsbFsm100ServerClass.SendBinary(System.Byte[]@,System.Int32,System.Int32)">
+            <summary>
+            Uses and input stream to act like SendBinary()
+            </summary>
+            <param name="data">Data (likely splice parameters) being sent to the splicer.</param>
+            <param name="length">Length of the data array.</param>
+            <param name="timeout">Dummy timeout value.</param>
+            <exception cref="T:System.InvalidOperationException">Method was called unexpectedly.</exception>
+            <exception cref="T:System.ArgumentException">Input to method did not match input stream.</exception>
+        </member>
+        <member name="T:RecordSplicingResults.OutputHandler.SplicerQueryFailedException">
+            <summary>
+            Thrown when a query to the splicer returns an invalid output or a NAK
+            </summary>
+        </member>
         <member name="M:RecordSplicingResults.OutputHandler.AutoParse(System.String)">
             <summary>
             Takes splicer output fields and parses them into their appropriate datatype
@@ -61,25 +100,25 @@
             <param name="id">The identifier we want to extract from the output string.</param>
             <returns>The result associated with the given identifier.</returns>
         </member>
+        <member name="M:RecordSplicingResults.OutputHandler.GetSingleResult(System.String,System.String,System.Boolean)">
+            <summary>
+            Gets a single result from the splicer in an IDENTIFIER|RESULT pair.
+            </summary>
+            <param name="query">Query to send to the splicer.</param>
+            <param name="identifier">Identifier to extract from splicer output.</param>
+            <param name="concatenate">Whether the identifier needs to be concatenated 
+            onto the end of the query string.</param>
+            <returns>Result associated with the identifier.</returns>
+        </member>
         <member name="M:RecordSplicingResults.OutputHandler.GetOutputAsDict(System.String,System.String[],System.Boolean)">
             <summary>
             Sends a query to the splicer and parses the result into a dict.
             </summary>
             <param name="query">Query to send to the splicer.</param>
             <param name="identifiers">Identifiers to extract from splicer output.</param>
-            <param name="concatenate">Whether the desired identifiers need to be concatenated 
+            <param name="concatenate">Whether the identifiers need to be concatenated 
             onto the end of the query string.</param>
             <returns>An identifier->result dict.</returns>
-        </member>
-        <member name="M:RecordSplicingResults.OutputHandler.GetSingleResult(System.String,System.String,System.Boolean)">
-            <summary>
-            Wrapper for GetOutputAsDict.
-            </summary>
-            <param name="query">Query to send to the splicer.</param>
-            <param name="identifier">Identifier to extract from splicer output.</param>
-            <param name="concatenate">Whether the desired identifier need to be concatenated 
-            onto the end of the query string.</param>
-            <returns>Result associated with the identifier.</returns>
         </member>
         <member name="T:RecordSplicingResults.ParamService">
             <summary>
@@ -109,8 +148,18 @@
             <summary>
             Backs up the parameters for every splice mode.
             </summary>
-            <param name="parentPath">Path to the directory in which the backups will go</param>
+            <param name="parentPath">Path to the directory in which the backups will go.</param>
             <param name="toCloud">Boolean representing whether or not to also back up parameters to S3.</param>
+        </member>
+        <member name="M:RecordSplicingResults.ParamService.RestoreParametersSpecific(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Restores the splice parameters for a single splice mode. 
+            </summary>
+            <param name="path">Path to either the parent directory or the bin file itself.</param>
+            <param name="spliceMode">The splice mode number to restore (1-300).</param>
+            <param name="pathIsParent">Whether or not the path is to a parent directory or to the file itself.</param>
+            <exception cref="T:System.Exception">Wrong number of files that match the splice mode number.</exception>
+            <exception cref="T:System.IO.InvalidDataException">File isn't 4100 bytes.</exception>
         </member>
         <member name="M:RecordSplicingResults.ParamService.RestoreAllParameters(System.String)">
             <summary>
@@ -118,8 +167,6 @@
             splice mode parameters. 
             </summary>
             <param name="path">Path to the directory containing the splice mode parameter backups.</param>
-            <exception cref="T:System.IO.FileNotFoundException">One of the 300 splice mode parameter files doesn't exist.</exception>
-            <exception cref="T:System.IO.InvalidDataException">The filesize for a parameter file is inc</exception>
         </member>
         <member name="T:RecordSplicingResults.BackupService">
             <summary>
@@ -132,7 +179,7 @@
             </summary>
             <param name="smode">Splice mode the most recent splice used.</param>
             <returns>A path of the form:
-             MAIN_BACKUPDIRECTORY\[serial number (splicer name)]\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
+             MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
             <exception cref="T:System.Exception"></exception>
         </member>
         <member name="M:RecordSplicingResults.BackupService.OpenBackups">
@@ -165,6 +212,17 @@
             </summary>
             <param name="verbose">Boolean representing whether this method should print text.</param>
             <returns>A boolean representing if the splicer is resting.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.StatusHandler.GetSplicerArcCount">
+            <summary>
+            Checks repeatedly for the # of arcs, even if the splicer throws NAKs.
+            </summary>
+            <returns>An int representing the arc count.</returns>
+        </member>
+        <member name="M:RecordSplicingResults.StatusHandler.WaitForNewSplice">
+            <summary>
+            Gets an arc count and waits for the count to increase (indicating a new splice).
+            </summary>
         </member>
         <member name="M:RecordSplicingResults.StatusHandler.TryConnect(System.Boolean)">
             <summary>
