@@ -130,7 +130,7 @@ public class OutputHandlerTests
             ["TARCCOUNT"] = 2
         };
 
-        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, true));
+        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, true), strict: true);
     }
     
     [Fact]
@@ -151,7 +151,7 @@ public class OutputHandlerTests
             ["TARCCOUNT"] = ""
         };
 
-        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, false));
+        Assert.Equivalent(dict, GetOutputAsDict("=INF", splicerInfo, false), strict: true);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class OutputHandlerTests
             ["ESTDEFORMLOSS"] = 0.6
         };
 
-        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, false));
+        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, false), strict: true);
     }
 
     [Fact]
@@ -189,6 +189,6 @@ public class OutputHandlerTests
             ["ESTDEFORMLOSS"] = ""
         };
 
-        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, true));
+        Assert.Equivalent(dict, GetOutputAsDict("=MEM-1", mem, true), strict: true);
     }
 }
