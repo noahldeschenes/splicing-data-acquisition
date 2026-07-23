@@ -1,34 +1,44 @@
 
+
+
+using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text.Json;
-
-
-using static RecordSplicingResults.StatusHandler;
-using static RecordSplicingResults.ParamService;
-using static RecordSplicingResults.OutputHandler;
-using System;
 using Spectre.Console;
+
+
+using static RecordSplicingResults.SpliceBackupService;
+using static RecordSplicingResults.StatusHandler;
+using static RecordSplicingResults.OutputHandler;
+using Amazon.S3.Model;
+
 
 namespace RecordSplicingResults
 {
     /// <summary>
-    /// A processor class which queries the splicer using methods in OutputHandler and
-    /// puts the results in a backup-able format. 
+    /// 
     /// </summary>
-    internal static class DataProcessor
+    internal struct BMPImage
+    {
+        internal string id {get; set;}
+        internal string view {get; set;}
+        internal byte[] image {get; set;}
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class DataBackup
     {
         static readonly string[] SPLICER_INFO = ["MODELNAME", "SERNUM", "TARCCOUNT"];
         static readonly string[] NONVOLATILE_MEM = ["ESTLOSS", "ESTOFFSETLOSS", "ESTDEFORMLOSS", 
         "ESTMFDLOSS", "ESTMINLOSS", "CLVANGLEL", "CLVANGLER", "FIBERANGLE", "GAP", "COREOFSAFTER",
         "CLADOFSAFTER", "ERR", "FIBERTYPE", "MODETITLE1", "MODETITLE2"];
-        //static readonly string[] VOLATILE_MEM = ["PRMDEFORM", "PRMINDEXDIF", "PRMOFFSET", 
-        //"PRMCORESTEP", "PRMCORECURVE", "FIBERANGBEFORE", "FIBERANGBEFOREL", "FIBERANGBEFORER",
-        //"FIBERANGAFTER", "FIBERANGAFTERL", "FIBERANGAFTERR", "CLADOFSBEFORE", "COREOFSBEFORE", 
-        //"ARCPOWER", "ARCTIME", "AXISMOVEMENT"];
         static readonly string[] LEFTFIBERINFO =  ["LCLAMPAT", "LCOATINGDIAMETER", "LCLADDIAMETER2", "LCLADDIAMETER", 
         "LCOREDIAMETER", "LMFD", "LCLEAVELENGTH"];
         static readonly string[] RIGHTFIBERINFO = ["RCLAMPAT", "RCOATINGDIAMETER", "RCLADDIAMETER2", "RCLADDIAMETER", 
@@ -39,14 +49,52 @@ namespace RecordSplicingResults
         "COREDEFORMATION", "MFDMISMATCHMEASURE", "MINIMUMLOSS", "WAVELENGTH", "COREDEFORMATIONCOEF", 
         "MFDMISMATCHOFFSET", "MFDMISMATCHSENSITIVITY", "ESTMODEFOROLDMETHOD", "CORESTEPCOEF", 
         "CORECURVECOEF", "OLDMFDMISMATCH", "REFPER"];
-
+        
+        static string[] imageIDs = ["PREARC", "WSI", "CLD"];
+        BMPImage[] bitmaps = new BMPImage[imageIDs.Length*2];
+        string serializedJSON = "";
+        MemoryImage spliceModeParams;
+        string dirPath = "";
 
         /// <summary>
-        /// Queries the splicer for non-image data and serializes it into a JSON.
+        /// 
         /// </summary>
-        /// <param name="location">Memory location for the most recent splice (1-3000).</param>
-        /// <returns>A serialized JSON.</returns>
-        internal static string CreateJSON(int location)
+        public DataBackup(DateTime currentTime)
+        {
+            InitBMPImages();
+
+            int location = (int) GetSingleResult("=MEMLATEST", "MEMLATEST");
+            InitJSON(location);
+
+            int smode = (int) GetSingleResult("%SMODE", "SMODE");
+            spliceModeParams = new MemoryImage(smode);
+            
+            InitDirPath(smode, currentTime); 
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void InitBMPImages()
+        {
+            for(int i=0; i<imageIDs.Length; i++)
+            {
+                
+                byte[] imgX = splicer.CommandAndReceiveBinary($"=IMGH-{imageIDs[i]}-X");
+                byte[] imgY = splicer.CommandAndReceiveBinary($"=IMGH-{imageIDs[i]}-Y");
+
+                bitmaps[i*2] = new BMPImage {id=imageIDs[i], view="X", image=imgX};
+                bitmaps[i*2+1] = new BMPImage {id=imageIDs[i], view="Y", image=imgY};
+
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="location"></param>
+        public void InitJSON(int location)
         {
                
             Dictionary<string, object> unserializedJSON = new();
@@ -66,51 +114,44 @@ namespace RecordSplicingResults
 
             // serializing JSON
             var options = new JsonSerializerOptions { WriteIndented = true };
-            string serializedJSON = JsonSerializer.Serialize(unserializedJSON, options);
-            return serializedJSON;
+            serializedJSON = JsonSerializer.Serialize(unserializedJSON, options);
 
         } 
 
         /// <summary>
-        /// Queries the splicer for prearc, warm splice, and cold images, each in the X and Y views.
+        /// Generates the appropriate path for the most recent splice.
         /// </summary>
-        /// <param name="parentDir">Directory to put the \images\ directory into.</param>
-        internal static void GetImages(string parentDir)
+        /// <param name="smode">Splice mode the most recent splice used.</param>
+        /// <param name="currentTime"></param>
+        /// <returns>A path of the form:
+        ///  MAIN_BACKUP_DIRECTORY\Splice data backups\[serial number]([splicer name])\[mode title, e.g. FLEX-SMF]\[date]\[time].</returns>
+        /// <exception cref="Exception"></exception>
+        internal void InitDirPath(int smode, DateTime currentTime)
         {
+            string DATA_BACKUP_MAIN_DIRECTORY = "Splice mode parameter backups";
             
-            string dirname = parentDir+@"\images";
+            string date = currentTime.ToString("yyyy-MM-dd");
+            string hour = currentTime.ToString("HH");
+            string minute = currentTime.ToString("mm");
 
-            Directory.CreateDirectory(dirname);
+            string modeTitle = (string) GetSingleResult($"%SPL-{smode}", "MODETITLE1", true);
+            string serialNumStr = ParamBackup.GetSerialNumStr();
 
-            string[] imageIDs = ["PREARC", "WSI", "CLD"];
-
-            foreach (string id in imageIDs)
-            {
-
-                // getting image in X view
-                byte[] imgX = splicer.CommandAndReceiveBinary($"=IMGH-{id}-X");
-                SaveBMPasPNG(imgX, dirname+@$"\{id}-X.png");
-
-                // getting image in Y view
-                byte[] imgY = splicer.CommandAndReceiveBinary($"=IMGH-{id}-Y");
-                SaveBMPasPNG(imgY, dirname+@$"\{id}-Y.png");
-
-            }
+            dirPath = @$"{MAIN_BACKUP_DIRECTORY}\{DATA_BACKUP_MAIN_DIRECTORY}\
+                {serialNumStr}\{modeTitle}\{date}\{hour}h{minute}";
+                
         }
-
 
         /// <summary>
         /// Saving the BMP image that the splicer gives as a png.
         /// </summary>
-        /// <param name="image">Bitmap image as a byte array.</param>
-        /// <param name="outputPath">Path where the png should be stored.</param>
-        internal static void SaveBMPasPNG(byte[] image, string outputPath)
+        /// <param name="bitmap">Bitmap image as a byte array.</param>
+        internal void SaveBMPasPNG(BMPImage bitmap)
         {
-            
+
             if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
-                AnsiConsole.MarkupLine("Image processing not supported for operating systems that aren't Windows 6.1+.");
-                return;
+                throw new Exception("Image processing not supported for operating systems that aren't Windows 6.1+.");
             } 
 
             // VGA is a resolution display standard which is 480x640 pixels
@@ -118,7 +159,8 @@ namespace RecordSplicingResults
             int VGA_WIDTH = 480;
 
             // There are metadata bytes at the start of the byte stream, so we only use the last VGA_HEIGHT*VGA_WIDTH bytes
-            image = image[(image.Length-VGA_HEIGHT*VGA_WIDTH)..];
+            byte[] image = bitmap.image;
+            image = image [(image.Length-VGA_HEIGHT*VGA_WIDTH)..];
 
 
             // Allocating memory that the garbage collector doesn't touch
@@ -132,10 +174,25 @@ namespace RecordSplicingResults
                 for (int i = 0; i < 256; i++) pal.Entries[i] = System.Drawing.Color.FromArgb(i, i, i);
                 bmp.Palette = pal;
 
+                string outputPath = dirPath+bitmap.id+"-"+bitmap.view; 
                 bmp.Save(outputPath, ImageFormat.Png);
             }
 
             handle.Free();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Backup()
+        {
+            foreach (BMPImage bitmap in bitmaps)
+            {
+                SaveBMPasPNG(bitmap);
+            }
+
+            File.WriteAllText(dirPath+"spliceData.JSON", serializedJSON);
+            spliceModeParams.Backup(dirPath);
         }
 
     }

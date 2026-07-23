@@ -4,9 +4,7 @@ using System;
 using System.Text.Json;
 
 using static RecordSplicingResults.SpliceBackupService;
-using static RecordSplicingResults.DataProcessor;
 using static RecordSplicingResults.StatusHandler;
-using static RecordSplicingResults.ParamService;
 using static RecordSplicingResults.OutputHandler;
 using Amazon.S3.Model;
 using System.Collections.Generic;

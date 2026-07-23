@@ -9,7 +9,7 @@ namespace RecordSplicingResults
     internal static class OutputHandler
     {
         
-        internal const int NUM_OF_MODES = 300; 
+        
         internal const string NAK = "\x15"; // ASCII code for NAK
         internal static IUsbFsm100ServerClass splicer = new MockUsbFsm100ServerClass([],[],[],[],[]);
 
